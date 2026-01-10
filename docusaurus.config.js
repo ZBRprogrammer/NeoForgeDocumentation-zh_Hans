@@ -64,8 +64,13 @@ const config = {
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: "en",
-    locales: ["en"],
+    defaultLocale: 'en',
+    locales: ['en', 'zh-Hans'],
+    localeConfigs: {
+      en: {
+        htmlLang: 'en-GB',
+      },
+    },
   },
 
   presets: [
@@ -113,7 +118,11 @@ const config = {
             sidebarId: "mainSidebar",
             position: "left",
             label: "NeoForge Documentation",
-          }
+          },
+          {
+			 type: 'localeDropdown',
+			 position: 'right',
+		  },
         ]
         .concat(navbarItems)
         .concat([

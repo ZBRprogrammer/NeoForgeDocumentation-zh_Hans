@@ -1,0 +1,90 @@
+{
+  "version.label": {
+    "message": "1.21.5",
+    "description": "1.21.5 版本的标签"
+  },
+  "sidebar.mainSidebar.category.Getting Started": {
+    "message": "开始使用",
+    "description": "侧边栏主分类中“开始使用”的标签"
+  },
+  "sidebar.mainSidebar.category.Concepts": {
+    "message": "概念",
+    "description": "侧边栏主分类中“概念”的标签"
+  },
+  "sidebar.mainSidebar.category.Blocks": {
+    "message": "方块",
+    "description": "侧边栏主分类中“方块”的标签"
+  },
+  "sidebar.mainSidebar.category.Items": {
+    "message": "物品",
+    "description": "侧边栏主分类中“物品”的标签"
+  },
+  "sidebar.mainSidebar.category.Entities": {
+    "message": "实体",
+    "description": "侧边栏主分类中“实体”的标签"
+  },
+  "sidebar.mainSidebar.category.Block Entities": {
+    "message": "方块实体",
+    "description": "侧边栏主分类中“方块实体”的标签"
+  },
+  "sidebar.mainSidebar.category.Resources": {
+    "message": "资源",
+    "description": "侧边栏主分类中“资源”的标签"
+  },
+  "sidebar.mainSidebar.category.Client": {
+    "message": "客户端",
+    "description": "侧边栏主分类中“客户端”的标签"
+  },
+  "sidebar.mainSidebar.category.Models": {
+    "message": "模型",
+    "description": "侧边栏主分类中“模型”的标签"
+  },
+  "sidebar.mainSidebar.category.Server": {
+    "message": "服务端",
+    "description": "侧边栏主分类中“服务端”的标签"
+  },
+  "sidebar.mainSidebar.category.Data Maps": {
+    "message": "数据映射",
+    "description": "侧边栏主分类中“数据映射”的标签"
+  },
+  "sidebar.mainSidebar.category.Enchantments": {
+    "message": "附魔",
+    "description": "侧边栏主分类中“附魔”的标签"
+  },
+  "sidebar.mainSidebar.category.Loot Tables": {
+    "message": "战利品表",
+    "description": "侧边栏主分类中“战利品表”的标签"
+  },
+  "sidebar.mainSidebar.category.Recipes": {
+    "message": "配方",
+    "description": "侧边栏主分类中“配方”的标签"
+  },
+  "sidebar.mainSidebar.category.Inventories & Transfers": {
+    "message": "物品栏与传输",
+    "description": "侧边栏主分类中“物品栏与传输”的标签"
+  },
+  "sidebar.mainSidebar.category.Data Storage": {
+    "message": "数据存储",
+    "description": "侧边栏主分类中“数据存储”的标签"
+  },
+  "sidebar.mainSidebar.category.GUIs": {
+    "message": "图形用户界面",
+    "description": "侧边栏主分类中“图形用户界面”的标签"
+  },
+  "sidebar.mainSidebar.category.Worldgen": {
+    "message": "世界生成",
+    "description": "侧边栏主分类中“世界生成”的标签"
+  },
+  "sidebar.mainSidebar.category.Networking": {
+    "message": "网络",
+    "description": "侧边栏主分类中“网络”的标签"
+  },
+  "sidebar.mainSidebar.category.Advanced Topics": {
+    "message": "高级主题",
+    "description": "侧边栏主分类中“高级主题”的标签"
+  },
+  "sidebar.mainSidebar.category.Miscellaneous": {
+    "message": "杂项",
+    "description": "侧边栏主分类中“杂项”的标签"
+  }
+}
