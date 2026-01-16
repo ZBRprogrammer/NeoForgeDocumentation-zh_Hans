@@ -1,89 +1,87 @@
 ---
 sidebar_position: 1
 ---
-# Entities
+# 实体 (Entities)
 
-Entities are in-world objects that can interact with the world in a variety of ways. Common example include mobs, projectiles, rideable objects, and even players. Each entity consists of multiple systems that may not seem understandable at first glance. This section will break down some of the key components related to constructing an entity and making it behave as the modder intends.
+实体是可以以多种方式与世界交互的世界内对象。常见的例子包括生物(mobs)、弹射物(projectiles)、可骑乘对象和玩家。每个实体由多个系统组成，这些系统乍一看可能不易理解。本节将分解与构建实体并使其按照模组开发者意图行为相关的一些关键组件。
 
-## Terminology
+## 术语 (Terminology)
 
-A simple entity is made up of three parts:
+一个简单的实体由三部分组成：
+- [`Entity`][entity] 子类，它包含我们实体的大部分逻辑
+- [`EntityType`][type]，它是[已注册的][registration]并保存一些通用属性，以及
+- [`EntityRenderer`][renderer]，它负责在游戏中显示实体
 
-- The [`Entity`][entity] subclass, which holds most of our entity's logic
-- The [`EntityType`][type], which is [registered][registration] and holds some common properties, and
-- The [`EntityRenderer`][renderer], which is responsible for displaying the entity in-game
-
-More complex entities may require more parts. For example, many of the more complex `EntityRenderer`s use an underlying `EntityModel` instance. Or, a naturally spawning entity will need some sort of [spawn mechanism][spawning].
+更复杂的实体可能需要更多部分。例如，许多更复杂的 `EntityRenderer` 使用底层的 `EntityModel` 实例。或者，自然生成的实体将需要某种[生成机制(spawn mechanism)][spawning]。
 
 ## `EntityType`
 
-The relationship between `EntityType`s and `Entity`s is similar to that of [`Item`s][item] and [`ItemStack`s][itemstack]. Like `Item`s, `EntityType`s are singletons that are registered to their corresponding registry (the entity type registry) and hold some values common to all entities of that type, while `Entity`s, like `ItemStack`s, are "instances" of that singleton type that hold data specific to that one entity instance. However, the key difference here is that most of the behavior is not defined in the singleton `EntityType`, but rather in the instantiated `Entity` class itself.
+`EntityType` 和 `Entity` 之间的关系类似于[`Item`s][item]和[`ItemStack`s][itemstack]之间的关系。与 `Item` 类似，`EntityType` 是注册到相应注册表（实体类型注册表）的单例，并保存该类型所有实体共有的值，而 `Entity`，类似于 `ItemStack`，是该单例类型的“实例”，保存特定于该实体实例的数据。然而，关键区别在于，大部分行为不是在单例 `EntityType` 中定义的，而是在实例化的 `Entity` 类本身中定义的。
 
-Let's create our `EntityType` registry and register an `EntityType` for it, assuming we have a class `MyEntity` that extends `Entity` (see [below][entity] for more information). All methods on `EntityType.Builder`, except for the `#build` call at the end, are optional.
+让我们创建我们的 `EntityType` 注册表并为其注册一个 `EntityType`，假设我们有一个扩展 `Entity` 的类 `MyEntity`（更多信息见[下文][entity]）。`EntityType.Builder` 上的所有方法都是可选的，除了最后的 `#build` 调用。
 
-```java
+``` java
 public static final DeferredRegister.Entities ENTITY_TYPES =
     DeferredRegister.createEntities(ExampleMod.MOD_ID);
 
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.register(
     "my_entity",
-    // The entity type, created using a builder.
+    // 使用构建器创建的实体类型。
     () -> EntityType.Builder.of(
-        // An EntityType.EntityFactory<T>, where T is the entity class used - MyEntity in this case.
-        // You can think of it as a BiFunction<EntityType<T>, Level, T>.
-        // This is commonly a reference to the entity constructor.
+        // EntityType.EntityFactory<T>，其中T是使用的实体类——本例中为 MyEntity。
+        // 你可以将其视为 BiFunction<EntityType<T>, Level, T>。
+        // 这通常是对实体构造函数的引用。
         MyEntity::new,
-        // The MobCategory our entity uses. This is mainly relevant for spawning.
-        // See below for more information.
+        // 我们的实体使用的生物分类(MobCategory)。这主要与生成相关。
+        // 更多信息见下文。
         MobCategory.MISC
     )
-    // The width and height, in blocks. The width is used in both horizontal directions.
-    // This also means that non-square footprints are not supported. Default is 0.6f and 1.8f.
+    // 宽度和高度，以方块为单位。宽度在两个水平方向上都使用。
+    // 这也意味着不支持非正方形的足迹。默认值为0.6f和1.8f。
     .sized(1.0f, 1.0f)
-    // A multiplicative factor (scalar) used by mobs that spawn in varying sizes.
-    // In vanilla, these are only slimes and magma cubes, both of which use 4.0f.
+    // 由以不同大小生成的生物使用的乘法因子（标量）。
+    // 在原版中，这些只有史莱姆和岩浆怪，两者都使用4.0f。
     .spawnDimensionsScale(4.0f)
-    // The eye height, in blocks from the bottom of the size. Defaults to height * 0.85.
-    // This must be called after #sized to have an effect.
+    // 眼睛高度，从尺寸底部开始计算的方块数。默认为高度 * 0.85。
+    // 必须在 #sized 之后调用才能生效。
     .eyeHeight(0.5f)
-    // Disables the entity being summonable via /summon.
+    // 禁用通过 /summon 召唤实体。
     .noSummon()
-    // Prevents the entity from being saved to disk.
+    // 防止实体保存到磁盘。
     .noSave()
-    // Makes the entity fire immune.
+    // 使实体防火。
     .fireImmune()
-    // Makes the entity immune to damage from a certain block. Vanilla uses this to make
-    // foxes immune to sweet berry bushes, withers and wither skeletons immune to wither roses,
-    // and polar bears, snow golems and strays immune to powder snow.
+    // 使实体对特定方块的伤害免疫。原版使用此功能使
+    // 狐狸对甜浆果丛免疫，凋灵和凋灵骷髅对凋零玫瑰免疫，
+    // 以及北极熊、雪傀儡和流浪者对细雪免疫。
     .immuneTo(Blocks.POWDER_SNOW)
-    // Disables a rule in the spawn handler that limits the distance at which entities can spawn.
-    // This means that no matter the distance to the player, this entity can spawn.
-    // Vanilla enables this for pillagers and shulkers.
+    // 禁用生成处理程序中的一条规则，该规则限制了实体可以生成的距离。
+    // 这意味着无论与玩家的距离如何，此实体都可以生成。
+    // 原版为掠夺者和潜影贝启用此功能。
     .canSpawnFarFromPlayer()
-    // The range in which the entity is kept loaded by the client, in chunks.
-    // Vanilla values for this vary, but it's often something around 8 or 10. Defaults to 5.
-    // Be aware that if this is greater than the client's chunk view distance,
-    // then that chunk view distance is effectively used here instead.
+    // 客户端保持实体加载的范围，以区块为单位。
+    // 此值的原版值各不相同，但通常在8或10左右。默认为5。
+    // 请注意，如果此值大于客户端的区块视距，
+    // 则实际上会使用该区块视距。
     .clientTrackingRange(8)
-    // How often update packets are sent for this entity, in once every x ticks. This is set to higher values
-    // for entities that have predictable movement patterns, for example projectiles. Defaults to 3.
+    // 此实体的更新数据包发送频率，每x刻一次。对于具有可预测移动模式的实体，
+    // 例如弹射物，此值设置得更高。默认为3。
     .updateInterval(10)
-    // Build the entity type using a resource key. The second parameter should be the same as the entity id.
+    // 使用资源键(resource key)构建实体类型。第二个参数应与实体id相同。
     .build(ResourceKey.create(
         Registries.ENTITY_TYPE,
         ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity")
     ))
 );
 
-// Shorthand version to avoid boilerplate. The following call is the same as
+// 避免样板代码的简写版本。以下调用与
 // ENTITY_TYPES.register("my_entity", () -> EntityType.Builder.of(MyEntity::new, MobCategory.MISC).build(
 //     ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("examplemod", "my_entity"))
-// );
+// ); 相同
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY =
     ENTITY_TYPES.registerEntityType("my_entity", MyEntity::new, MobCategory.MISC);
 
-// Shorthand version that still allows calling additional builder methods
-// by supplying a UnaryOperator<EntityType.Builder> parameter.
+// 仍然允许通过提供 UnaryOperator<EntityType.Builder> 参数调用其他构建器方法的简写版本。
 public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.registerEntityType(
     "my_entity", MyEntity::new, MobCategory.MISC,
     builder -> builder.sized(2.0f, 2.0f).eyeHeight(1.5f).updateInterval(5));
@@ -91,44 +89,43 @@ public static final Supplier<EntityType<MyEntity>> MY_ENTITY = ENTITY_TYPES.regi
 
 ### `MobCategory`
 
-_See also [Natural Spawning][mobspawn]._
+_另请参见[自然生成(Natural Spawning)][mobspawn]。_
 
-An entity's `MobCategory` determines some properties for the entity, which are related to [spawning and despawning][mobspawn]. Vanilla adds a total of eight `MobCategory`s by default:
+实体的 `MobCategory` 决定了实体的一些属性，这些属性与[生成和消失(spawning and despawning)][mobspawn]相关。原版默认添加了总共八个 `MobCategory`：
 
-| Name                         | Spawn Cap | Examples                                                                                                                       |
-|------------------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `MONSTER`                    | 70        | Various monsters                                                                                                               |
-| `CREATURE`                   | 10        | Various animals                                                                                                                |
-| `AMBIENT`                    | 15        | Bats                                                                                                                           |
-| `AXOLOTS`                    | 5         | Axolotls                                                                                                                       |
-| `UNDERGROUND_WATER_CREATURE` | 5         | Glow Squids                                                                                                                    |
-| `WATER_CREATURE`             | 5         | Squids, Dolphins                                                                                                               |
-| `WATER_AMBIENT`              | 20        | Fish                                                                                                                           |
-| `MISC`                       | N/A       | All non-living entities, e.g. projectiles; using this `MobCategory` will make the entity unable to be spawned naturally at all |
+| 名称                         | 生成上限 | 示例                                                                                                                       |
+|------------------------------|----------|----------------------------------------------------------------------------------------------------------------------------|
+| `MONSTER`                    | 70       | 各种怪物                                                                                                                   |
+| `CREATURE`                   | 10       | 各种动物                                                                                                                   |
+| `AMBIENT`                    | 15       | 蝙蝠                                                                                                                       |
+| `AXOLOTS`                    | 5        | 美西螈                                                                                                                     |
+| `UNDERGROUND_WATER_CREATURE` | 5        | 发光鱿鱼                                                                                                                   |
+| `WATER_CREATURE`             | 5        | 鱿鱼、海豚                                                                                                                 |
+| `WATER_AMBIENT`              | 20       | 鱼                                                                                                                         |
+| `MISC`                       | 无       | 所有非生物实体，例如弹射物；使用此 `MobCategory` 将使实体完全无法自然生成                                                 |
 
-There are also some other properties that are only set on one or two `MobCategory`s each:
-
-- `isFriendly`: Set to false for `MONSTER`, and true for all others.
-- `isPersistent`: Set to true for `CREATURE` and `MISC`, and false for all others.
-- `despawnDistance`: Set to 64 for `WATER_AMBIENT`, and 128 for all others.
+还有一些其他属性仅在一个或两个 `MobCategory` 上设置：
+- `isFriendly`：对于 `MONSTER` 设置为 false，对于所有其他设置为 true。
+- `isPersistent`：对于 `CREATURE` 和 `MISC` 设置为 true，对于所有其他设置为 false。
+- `despawnDistance`：对于 `WATER_AMBIENT` 设置为 64，对于所有其他设置为 128。
 
 :::info
-`MobCategory` is an [extensible enum][extenum], meaning that you can add custom entries to it. If you do so, you will also have to add some spawning mechanism for entities of this custom `MobCategory`.
+`MobCategory` 是一个[可扩展枚举(extensible enum)][extenum]，意味着你可以向其添加自定义条目。如果这样做，你还需要为此自定义 `MobCategory` 的实体添加一些生成机制。
 :::
 
-## The Entity Class
+## 实体类 (The Entity Class)
 
-To begin, we create an `Entity` subclass. Alongside a constructor, `Entity` (which is an abstract class) defines four required methods that we are required to implement. The first three will be explained in the [Data and Networking article][data], in order to not further bloat this article, and `#hurtServer` is explained in the [Damaging Entities section][damaging].
+首先，我们创建一个 `Entity` 子类。除了构造函数，`Entity`（一个抽象类）定义了四个我们需要实现的必需方法。前三个方法将在[数据与网络(Data and Networking)文章][data]中解释，以免进一步臃肿本文，而 `#hurtServer` 在[伤害实体(Damaging Entities)部分][damaging]中解释。
 
-```java
+``` java
 public class MyEntity extends Entity {
-    // We inherit this constructor without the bound on the generic wildcard.
-    // The bound is needed for registration below, so we add it here.
+    // 我们继承此构造函数，但没有对泛型通配符的边界。
+    // 下面的注册需要边界，因此我们在这里添加它。
     public MyEntity(EntityType<? extends MyEntity> type, Level level) {
         super(type, level);
     }
 
-    // See the Data and Networking article for information about these methods.
+    // 有关这些方法的信息，请参阅数据与网络文章。
     @Override
     protected void readAdditionalSaveData(ValueInput input) {}
 
@@ -146,69 +143,69 @@ public class MyEntity extends Entity {
 ```
 
 :::info
-While `Entity` can be extended directly, it often makes sense to use one of its many subclasses as a base instead. See the [entity class hierarchy][hierarchy] for more information.
+虽然可以直接扩展 `Entity`，但通常更有意义的是使用其众多子类之一作为基础。更多信息请参见[实体类层次结构(entity class hierarchy)][hierarchy]。
 :::
 
-If required (e.g. because you're spawning entities from code), you can also add custom constructors. These generally hardcode the entity type as a reference to the registered object, like so:
+如果需要（例如，因为从代码生成实体），你也可以添加自定义构造函数。这些通常将实体类型硬编码为对已注册对象的引用，如下所示：
 
-```java
+``` java
 public MyEntity(EntityType<? extends MyEntity> type, Level level, double x, double y, double z) {
-    // Delegates to the factory constructor, using the EntityType we registered before.
+    // 委托给工厂构造函数，使用我们之前注册的 EntityType。
     this(type, level);
     this.setPos(x, y, z);
 }
 ```
 
 :::warning
-Custom constructors should never have exactly two parameters, as that will cause confusion with the `(EntityType, Level)` constructor above.
+自定义构造函数永远不应恰好有两个参数，因为这会导致与上面的 `(EntityType, Level)` 构造函数混淆。
 :::
 
-And now, we are free to do basically whatever we want with our entity. The following subsections will display a variety of common entity use cases.
+现在，我们可以自由地对我们的实体做任何我们想做的事情。以下小节将展示各种常见的实体用例。
 
-### Data Storage on Entities
+### 在实体上存储数据 (Data Storage on Entities)
 
-_See [Entities/Data and Networking][data]._
+_参见[实体/数据与网络(Entities/Data and Networking)][data]。_
 
-### Rendering Entities
+### 渲染实体 (Rendering Entities)
 
-_See [Entities/Entity Renderers][renderer]._
+_参见[实体/实体渲染器(Entities/Entity Renderers)][renderer]。_
 
-### Spawning Entities
+### 生成实体 (Spawning Entities)
 
-If we now boot up the game now and enter a world, we have exactly one way of spawning: through the [`/summon`][summon] command (assuming `EntityType.Builder#noSummon` was not called).
+如果我们现在启动游戏并进入世界，我们只有一种生成方式：通过[`/summon`][summon]命令（假设没有调用 `EntityType.Builder#noSummon`）。
 
-Obviously, we want to add our entities some other way. The easiest way to do so is through the `LevelWriter#addFreshEntity` method. This method simply accepts an `Entity` instance and adds it to the world, like so:
+显然，我们希望以其他方式添加我们的实体。最简单的方法是通过 `LevelWriter#addFreshEntity` 方法。该方法简单地接受一个 `Entity` 实例并将其添加到世界中，如下所示：
 
-```java
-// In some method that has a level available, only on the server
+``` java
+// 在某个有 Level 可用的方法中，仅在服务器上
 if (!level.isClientSide()) {
     MyEntity entity = new MyEntity(level, 100.0, 200.0, 300.0);
     level.addFreshEntity(entity);
 }
 ```
 
-Alternatively, you can also call `EntityType#spawn`, which is especially recommended when spawning [living entities][livingentity], as it does some additional setup, such as firing the spawn [events][event].
+或者，你也可以调用 `EntityType#spawn`，这尤其推荐在生成[生物实体(living entities)][livingentity]时使用，因为它会执行一些额外的设置，例如触发生成[事件(event)][event]。
 
-This will be used for pretty much all non-living entities. Players should obviously not be spawned yourself, `Mob`s have [their own ways of spawning][mobspawn] (though they can also be added via `#addFreshEntity`), and vanilla [projectiles][projectile] also have static helpers for spawning in the `Projectile` class.
+这将用于几乎所有的非生物实体。玩家显然不应该自己生成，`Mob`s有[它们自己的生成方式][mobspawn]（尽管它们也可以通过 `#addFreshEntity` 添加），而原版[弹射物(projectiles)][projectile]在 `Projectile` 类中也有用于生成的静态辅助方法。
 
-### Damaging Entities
+### 伤害实体 (Damaging Entities)
 
-_See also [Left-Clicking an Item][leftclick]._
+_另请参见[左键点击物品(Left-Clicking an Item)][leftclick]。_
 
-While not all entities have the concept of hit points, they can still all receive damage. This is not only used by things like mobs and players: If you cast your mind to item entities (dropped items), they too can take damage from sources like fire or cacti, in which case they are usually deleted immediately.
+虽然不是所有实体都有生命值的概念，但它们都可以受到伤害。这不仅适用于生物和玩家：如果你想到物品实体（掉落的物品），它们也会受到来自火或仙人掌等来源的伤害，在这种情况下，它们通常会被立即删除。
 
-Damaging an entity is possible by calling either `Entity#hurt` or `Entity#hurtOrSimulate`, the difference between those two is explained below. Both methods take two arguments: the [`DamageSource`][damagesource] and the damage amount, as a float in half hearts. For example, calling `entity.hurt(entity.damageSources().wither(), 4.25)` will cause a little over two hearts of wither damage.
+可以通过调用 `Entity#hurt` 或 `Entity#hurtOrSimulate` 来对实体造成伤害，这两个方法之间的区别如下所述。两个方法都接受两个参数：[`DamageSource`][damagesource]和伤害量，以半颗心的浮点数表示。例如，调用 `entity.hurt(entity.damageSources().wither(), 4.25)` 将造成略多于两颗心的凋零伤害。
 
-In turn, entities can also modify that behavior. This isn't done by overriding `#hurt`, as it is a final method. Rather, there are two methods `#hurtServer` and `#hurtClient` that each handle damage logic for the corresponding side. `#hurtClient` is commonly used to tell the client that an attack has succeeded, even though that may not always be true, mainly for playing attack sounds and other effects regardless. For changing damage behavior, we mainly care about `#hurtServer`, which we can override like so:
+反过来，实体也可以修改这种行为。这不是通过重写 `#hurt` 来完成的，因为它是一个 final 方法。而是有两个方法 `#hurtServer` 和 `#hurtClient`，分别处理对应端的伤害逻辑。`#hurtClient` 通常用于告诉客户端攻击已成功，即使这可能并不总是正确的，主要是为了无论结果如何都播放攻击音效和其他效果。对于更改伤害行为，我们主要关心 `#hurtServer`，我们可以像这样重写它：
 
-```java
+``` java
 @Override
-// The boolean return value determines whether the entity was actually damaged or not.
+// 布尔返回值决定实体是否实际受到伤害。
 public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
     if (damageSource.is(DamageTypeTags.IS_FIRE)) {
-        // This assumes that super#hurtServer() is implemented. Common other ways to do this
-        // are to set some field yourself. Vanilla implementations vary greatly across different entities.
-        // Notably, living entities usually call #actuallyHurt, which in turn calls #setHealth.
+        // 这假设 super#hurtServer() 已实现。其他常见的方式是
+        // 自己设置某个字段。原版实现在不同实体之间差异很大。
+        // 值得注意的是，生物实体通常调用 #actuallyHurt，后者又调用 #setHealth。
         return super.hurtServer(level, damageSource, amount * 2);
     } else {
         return false;
@@ -216,115 +213,113 @@ public boolean hurtServer(ServerLevel level, DamageSource damageSource, float am
 }
 ```
 
-This server/client separation is also the difference between `Entity#hurt` and `Entity#hurtOrSimulate`: `Entity#hurt` only runs on the server (and calls `Entity#hurtServer`), whereas `Entity#hurtOrSimulate` runs on both sides, calling `Entity#hurtServer` or `Entity#hurtClient` depending on the side.
+这种服务器/客户端的分离也是 `Entity#hurt` 和 `Entity#hurtOrSimulate` 之间的区别：`Entity#hurt` 仅在服务器上运行（并调用 `Entity#hurtServer`），而 `Entity#hurtOrSimulate` 在两端都运行，根据端调用 `Entity#hurtServer` 或 `Entity#hurtClient`。
 
-It is also possible to modify damage done to entities that do not belong to you, i.e. those added by Minecraft or other mods, through events. These events contain a lot of code specific to `LivingEntity`s; as such, their documentation resides in the [Damage Events section][damageevents] within the [Living Entities article][livingentity].
+也可以通过事件修改对不属于你的实体（即由Minecraft或其他模组添加的实体）造成的伤害。这些事件包含许多特定于 `LivingEntity` 的代码；因此，它们的文档位于[生物实体(Living Entities)文章][livingentity]内的[伤害事件(Damage Events)部分][damageevents]。
 
-### Ticking Entities
+### 实体刻更新 (Ticking Entities)
 
-Quite often, you will want your entity to do something (e.g. move) every tick. This logic is split across several methods:
+很多时候，你会希望你的实体每刻都做一些事情（例如移动）。这个逻辑分布在几个方法中：
+- `#tick`：这是核心的刻更新方法，在99%的情况下你会想要重写它。
+    - 默认情况下，这转发给 `#baseTick`，但几乎每个子类都会重写它。
+- `#baseTick`：此方法处理所有实体通用的一些值的更新，包括“着火”状态、细雪冻结、游泳状态以及通过传送门。`LivingEntity` 额外在此处理溺水、方块内伤害和伤害追踪器的更新。如果你想更改或添加该逻辑，请重写此方法。
+    - 默认情况下，`Entity#tick` 会转发给此方法。
+- `#rideTick`：此方法针对其他实体的乘客调用，例如玩家骑马，或任何由于使用 `/ride` 命令而骑乘另一个实体的实体。
+    - 默认情况下，此方法执行一些检查，然后调用 `#tick`。骷髅和玩家重写此方法以特殊处理骑乘实体。
 
-- `#tick`: This is the central tick method, and the one you will want to override in 99% of cases.
-    - By default, this forwards to `#baseTick`, however this is overridden by almost every subclass.
-- `#baseTick`: This method handles updating some values common to all entities, including the "on fire" state, freezing from powder snow, the swimming state, and passing through portals. `LivingEntity` additionally handles drowning, in-block damage, and updates to the damage tracker here. Override this method if you want to change or add to that logic.
-    - By default, `Entity#tick` will forward to this method.
-- `#rideTick`: This method is called for passengers of other entities, for example for players riding horses, or any entity that rides another entity due to use of the `/ride` command.
-    - By default, this does some checks and then calls `#tick`. Skeletons and players override this method for special handling of riding entities.
+此外，实体有一个名为 `tickCount` 的字段，表示实体在级别中存在的时间（以刻为单位），以及一个布尔字段 `firstTick`，这应该是不言自明的。例如，如果你想每5刻[生成一个粒子(particle)][particle]，可以使用以下代码：
 
-Additionally, the entity has a field called `tickCount`, which is the time, in ticks, that the entity has existed in the level, and a boolean field named `firstTick`, which should be self-explanatory. For example, if you wanted to [spawn a particle][particle] every 5 ticks, you could use the following code:
-
-```java
+``` java
 @Override
 public void tick() {
-    // Always call super unless you have a good reason not to.
+    // 除非有充分理由，否则始终调用 super。
     super.tick();
-    // Run this code once every 5 ticks.
+    // 每5刻运行一次此代码。
     if (this.tickCount % 5 == 0) {
         this.level().addParticle(...);
     }
 }
 ```
 
-### Picking Entities
+### 选取实体 (Picking Entities)
 
-_See also [Middle-Clicking][middleclick]._
+_另请参见[中键点击(Middle-Clicking)][middleclick]。_
 
-Picking is the process of selecting the thing that the player is currently looking at, as well as subsequently picking the associated item. The result of middle-clicking, known as the "pick result", can be modified by your entity (be aware that the `Mob` class will select the correct spawn egg for you):
+选取(picking)是选择玩家当前正在看的东西的过程，以及随后选取关联的物品。中键点击的结果，称为“选取结果(pick result)”，可以由你的实体修改（注意 `Mob` 类会为你选择正确的刷怪蛋）：
 
-```java
+``` java
 @Override
 @Nullable
 public ItemStack getPickResult() {
-    // Assumes that MY_CUSTOM_ITEM is a DeferredItem<?>, see the Items article for more information.
-    // If the entity should not be pickable, it is advised to return null here.
+    // 假设 MY_CUSTOM_ITEM 是一个 DeferredItem<?>，更多信息请参见物品文章。
+    // 如果实体不应被选取，建议在此返回 null。
     return new ItemStack(MY_CUSTOM_ITEM.get());
 }
 ```
 
-While entities should generally be pickable, there are some niche cases where this isn't desirable. A vanilla use case for this is the ender dragon, which consists of multiple parts. The parent entity has picking disabled, but the parts have it enabled again, for finer hitbox tuning.
+虽然实体通常应该是可选取的，但也有一些特殊情况不希望这样。原版的一个用例是末影龙，它由多个部分组成。父实体禁用了选取，但部分又重新启用，以便更精细地调整命中箱。
 
-If you have a similarly niche use case, your entity can also be disabled from picking entirely like so:
+如果你有类似的特殊用例，你的实体也可以像这样完全禁用选取：
 
-```java
+``` java
 @Override
 public boolean isPickable() {
-    // Additional checks may be performed here if needed.
+    // 如果需要，可以在此执行其他检查。
     return false;
 }
 ```
 
-If you want to do the picking (i.e. ray casting) yourself, you can call `Entity#pick` on the entity that you want to start the ray cast from. This will return a [`HitResult`][hitresult] that you can further check for what exactly has been hit by the ray cast.
+如果你想自己进行选取（即光线投射），可以在要开始光线投射的实体上调用 `Entity#pick`。这将返回一个[`HitResult`][hitresult]，你可以进一步检查光线投射击中了什么。
 
-### Entity Attachments
+### 实体附件 (Entity Attachments)
 
-_Not to be confused with [Data Attachments][dataattachments]._
+_不要与[数据附件(Data Attachments)][dataattachments]混淆。_
 
-Entity attachments are used to define visual attachment points for the entity. Using this system, it can be defined where things like passengers or name tags will be displayed relative to the entity itself. The entity itself controls only the default position of the attachment, and the attachment can then define an offset from that default.
+实体附件用于定义实体的视觉附着点。使用这个系统，可以定义诸如乘客或名称标签相对于实体本身显示的位置。实体本身只控制附件的默认位置，然后附件可以定义相对于该默认位置的偏移。
 
-When building the `EntityType`, any amount of attachment points can be set by calling `EntityType.Builder#attach`. This method accepts an `EntityAttachment`, which defines the attachment to consider, and three floats to define the position (x/y/z). The position should be defined relative to where the default value of the attachment would be.
+在构建 `EntityType` 时，可以通过调用 `EntityType.Builder#attach` 设置任意数量的附着点。此方法接受一个 `EntityAttachment`，它定义了要考虑的附件，以及三个浮点数来定义位置（x/y/z）。位置应相对于附件的默认值定义。
 
-Vanilla defines the following four `EntityAttachment`s:
+原版定义了以下四个 `EntityAttachment`：
 
-| Name           | Default                                  | Usages                                                               |
-|----------------|------------------------------------------|----------------------------------------------------------------------|
-| `PASSENGER`    | Center X/top Y/center Z of the hitbox    | Rideable entities, e.g. horses, to define where passengers appear    |
-| `VEHICLE`      | Center X/bottom Y/center Z of the hitbox | All entities, to define where they appear when riding another entity |
-| `NAME_TAG`     | Center X/top Y/center Z of the hitbox    | Define where the name tag of the entity appears, if applicable       |
-| `WARDEN_CHEST` | Center X/center Y/center Z of the hitbox | By wardens, to define where the sonic boom attack originates from    |
+| 名称           | 默认值                                | 用途                                                                 |
+|----------------|---------------------------------------|----------------------------------------------------------------------|
+| `PASSENGER`    | 命中箱的中心X/顶部Y/中心Z             | 可骑乘实体，例如马，以定义乘客出现的位置                            |
+| `VEHICLE`      | 命中箱的中心X/底部Y/中心Z             | 所有实体，以定义它们骑乘另一个实体时出现的位置                      |
+| `NAME_TAG`     | 命中箱的中心X/顶部Y/中心Z             | 定义实体的名称标签出现的位置（如果适用）                            |
+| `WARDEN_CHEST` | 命中箱的中心X/中心Y/中心Z             | 由监守者使用，以定义音波攻击的起源位置                              |
 
 :::info
-`PASSENGER` and `VEHICLE` are related in that they are used in the same context. First, `PASSENGER` is applied to position the rider. Then, `VEHICLE` is applied on the rider.
+`PASSENGER` 和 `VEHICLE` 是相关的，因为它们在同一上下文中使用。首先，应用 `PASSENGER` 来定位骑乘者。然后，在骑乘者上应用 `VEHICLE`。
 :::
 
-Every attachment can be thought of as a mapping from `EntityAttachment` to `List<Vec3>`. The amount of points actually used depends on the consuming system. For example, boats and camels will use two `PASSENGER` points, while entities like horses or minecarts will only use one `PASSENGER` point.
+每个附件都可以被视为从 `EntityAttachment` 到 `List<Vec3>` 的映射。实际使用的点数取决于消费系统。例如，船和骆驼将使用两个 `PASSENGER` 点，而像马或矿车这样的实体将只使用一个 `PASSENGER` 点。
 
-`EntityType.Builder` also has some helpers related to `EntityAttachment`s:
+`EntityType.Builder` 还有一些与 `EntityAttachment` 相关的辅助方法：
+- `#passengerAttachment()`：用于定义 `PASSENGER` 附件。有两个变体。
+    - 一个变体接受一个 `Vec3...` 的附着点。
+    - 另一个接受一个 `float...`，它通过将每个浮点数转换为使用给定浮点数作为y值，并将x和z设置为0的 `Vec3`，转发给 `Vec3...` 变体。
+- `#vehicleAttachment()`：用于定义 `VEHICLE` 附件。接受一个 `Vec3`。
+- `#ridingOffset()`：用于定义 `VEHICLE` 附件。接受一个浮点数，并转发给 `#vehicleAttachment()`，其中x和z值设置为0，y值设置为传入浮点数的负值。
+- `#nameTagOffset()`：用于定义 `NAME_TAG` 附件。接受一个浮点数，用于y值，x和z值使用0。
 
-- `#passengerAttachment()`: Used to define `PASSENGER` attachments. Comes in two variants.
-    - One variant accepts a `Vec3...` of attachment points.
-    - The other accepts a `float...`, which forwards to the `Vec3...` variant by transforming each float to a `Vec3` that uses the given float as the y value, and sets x and z to 0.
-- `#vehicleAttachment()`: Used to define a `VEHICLE` attachment. Accepts a `Vec3`.
-- `#ridingOffset()`: Used to define a `VEHICLE` attachment. Accepts a float and forwards to `#vehicleAttachment()` with a `Vec3` that has its x and z values set to 0, and the y value set to the negated value of the passed-in float.
-- `#nameTagOffset()`: Used to define a `NAME_TAG` attachment. Accepts a float, which is used for the y value, with 0 being used for the x and z values.
+或者，可以通过调用 `EntityAttachments#builder()` 然后在该构建器上调用 `#attach()` 来自定义附件，如下所示：
 
-Alternatively, attachments can be defined yourself by calling `EntityAttachments#builder()` and then calling `#attach()` on that builder, like so:
-
-```java
-// In some EntityType<?> creation
+``` java
+// 在某个 EntityType<?> 创建中
 EntityType.Builder.of(...)
-    // This EntityAttachment will make name tags float half a block above the ground.
-    // If this is not set, it will default to the entity's hitbox height.
+    // 此 EntityAttachment 将使名称标签浮在地面上方半个方块处。
+    // 如果未设置，将默认为实体的命中箱高度。
     .attach(EntityAttachment.NAME_TAG, 0, 0.5f, 0)
     .build();
 ```
 
-## Entity Class Hierarchy
+## 实体类层次结构 (Entity Class Hierarchy)
 
-Due to the many different types of entities, there is a complex hierarchy of subclasses of `Entity`. These are important to know about when choosing what class to extend when making your own entity, as you will be able to save a lot of work by reusing their code.
+由于实体类型众多，存在一个复杂的 `Entity` 子类层次结构。在制作自己的实体时选择要扩展的类时，了解这些很重要，因为通过重用它们的代码，你可以节省大量工作。
 
-The vanilla entity hierarchy looks like this (red classes are `abstract`, blue classes are not):
+原版实体层次结构如下所示（红色类是 `abstract`，蓝色类不是）：
 
-```mermaid
+``` mermaid
 graph LR;
     Entity-->Projectile;
     Entity-->LivingEntity;
@@ -357,36 +352,34 @@ graph LR;
     class LeashFenceKnotEntity,ItemFrame,GlowItemFrame,Painting,EnderDragonPart,ChestBoat,ChestRaft,Boat,Raft,MinecartChest,MinecartHopper,Minecart,MinecartCommandBlock,MinecartCommandBlock,MinecartFurnace,MinecartSpawner,MinecartTNT blue;
 ```
 
-Let's break these down:
+让我们分解一下：
+- `Projectile`：各种弹射物的基类，包括箭、火球、雪球、烟花和类似实体。更多信息见[下文][projectile]。
+- `LivingEntity`：任何“生物”的基类，即具有生命值、装备、[状态效果(mob effects)][mobeffect]和其他一些属性的实体。包括怪物、动物、村民和玩家等。更多信息见[生物实体(Living Entities)文章][livingentity]。
+- `BlockAttachedEntity`：固定并附着在方块上的实体的基类。包括拴绳结、物品展示框和画。子类的主要目的是重用通用代码。
+- `PartEntity`：NeoForge添加的部分实体的基类，即由多个较小实体组成的实体。`EnderDragonPart` 被修补为扩展 `PartEntity` 而不是 `Entity`。
+- `VehicleEntity`：船和矿车的基类。虽然这些实体与 `LivingEntity` 松散地共享生命值的概念，但它们与 `LivingEntity` 不共享许多其他属性，因此保持分离。子类的主要目的是重用通用代码。
 
-- `Projectile`: The base class for various projectiles, including arrows, fireballs, snowballs, fireworks and similar entities. Read more about them [below][projectile].
-- `LivingEntity`: The base class for anything "living", in the sense of it having things like hit points, equipment, [mob effects][mobeffect] and some other properties. Includes things such as monsters, animals, villagers, and players. Read more about them in the [Living Entities article][livingentity].
-- `BlockAttachedEntity`: The base class for entities that are immobile and attached to blocks. Includes leash knots, item frames and paintings. The subclasses mainly serve the purpose of reusing common code.
-- `PartEntity`: A NeoForge-added base class for part entities, i.e. entities made up of multiple smaller entities. `EnderDragonPart` is patched to extend `PartEntity` instead of `Entity`.
-- `VehicleEntity`: The base class for boats and minecarts. While these entities loosely share the concept of hit points with `LivingEntity`s, they do not share many other properties with them and are as such kept separated. The subclasses mainly serve the purpose of reusing common code.
-
-There are also several entities that are direct subclasses of `Entity`, simply because there was no other fitting superclass. Most of these should be self-explanatory:
-
-- `AreaEffectCloud` (lingering potion clouds)
+还有一些实体直接是 `Entity` 的子类，仅仅是因为没有其他合适的超类。其中大多数应该是不言自明的：
+- `AreaEffectCloud`（滞留药水云）
 - `EndCrystal`
 - `EvokerFangs`
 - `ExperienceOrb`
 - `EyeOfEnder`
-- `FallingBlockEntity` (falling sand, gravel etc.)
-- `ItemEntity` (dropped items)
+- `FallingBlockEntity`（下落的沙子、沙砾等）
+- `ItemEntity`（掉落的物品）
 - `LightningBolt`
-- `OminousItemSpawner` (for continuously spawning the loot of trial spawners)
+- `OminousItemSpawner`（用于持续生成试炼刷怪器的战利品）
 - `PrimedTnt`
 
-Not included in this diagram and list are the mapmaker entities (displays, interactions and markers).
+此图和列表中未包含地图制作者实体（显示实体、交互实体和标记实体）。
 
-### Projectiles
+### 弹射物 (Projectiles)
 
-Projectiles are a subgroup of entities. Common to them is that they fly in one direction until they hit something, and that they have an owner assigned to them (e.g. a player or a skeleton would be the owner of an arrow, or a ghast would be the owner of a fireball).
+弹射物是实体的一个子组。它们的共同点是沿一个方向飞行直到击中某物，并且它们有一个分配的所有者（例如，玩家或骷髅可以是箭的所有者，恶魂可以是火球的所有者）。
 
-The class hierarchy of projectiles looks as follows (red classes are `abstract`, blue classes are not):
+弹射物的类层次结构如下所示（红色类是 `abstract`，蓝色类不是）：
 
-```mermaid
+``` mermaid
 graph LR;
     Projectile-->AbstractArrow;
     AbstractArrow-->Arrow;
@@ -419,21 +412,19 @@ graph LR;
     class Arrow,SpectralArrow,ThrownTrident,BreezeWindCharge,WindCharge,DragonFireball,LargeFireball,SmallFireball,WitherSkull,FireworkRocketEntity,FishingHook,LlamaSpit,ShulkerBullet,Snowball,ThrownEgg,ThrownEnderpearl,ThrownExperienceBottle,ThrownLingeringPotion,ThrownSplashPotion blue;
 ```
 
-Of note are the three direct abstract subclasses of `Projectile`:
+值得注意的是 `Projectile` 的三个直接抽象子类：
+- `AbstractArrow`：此类涵盖不同类型的箭，以及三叉戟。一个重要的共同属性是它们不会直线飞行，而是受重力影响。
+- `AbstractHurtingProjectile`：此类涵盖风弹、各种火球和凋灵之首。这些是不受重力影响的伤害性弹射物。
+- `ThrowableProjectile`：此类涵盖诸如鸡蛋、雪球和末影珍珠之类的东西。与箭一样，它们受重力影响，但与箭不同的是，它们击中目标时不会造成伤害。它们也都是通过使用相应的[物品]生成的。
 
-- `AbstractArrow`: This class covers the different kinds of arrows, as well as the trident. An important common property is that they will not fly straight, but are affected by gravity.
-- `AbstractHurtingProjectile`: This class covers wind charges, various fireballs, and wither skulls. These are damaging projectiles unaffected by gravity.
-- `ThrowableProjectile`: This class covers things like eggs, snowballs and ender pearls. Like arrows, they are affected by gravity, but unlike arrows, they will not inflict damage upon hitting the target. They are also all spawned by using the corresponding [item].
-
-A new projectile can be created by extending `Projectile` or a fitting subclass, and then overriding the methods required for adding your functionality. Common methods to override include:
-
-- `#shoot`: Calculates and sets the correct velocity on the projectile.
-- `#onHit`: Called when something is hit.
-    - `#onHitEntity`: Called when that something is an [entity].
-    - `#onHitBlock`: Called when that something is a [block].
-- `#getOwner` and `#setOwner`, which get and set the owning entity, respectively.
-- `#deflect`, which deflects the projectile based on the passed `ProjectileDeflection` enum value.
-- `#onDeflection`, which is called from `#deflect` for any post-deflection behavior.
+可以通过扩展 `Projectile` 或合适的子类来创建新的弹射物，然后重写添加功能所需的方法。常见的重写方法包括：
+- `#shoot`：计算并设置弹射物的正确速度。
+- `#onHit`：当击中某物时调用。
+    - `#onHitEntity`：当该物是[实体]时调用。
+    - `#onHitBlock`：当该物是[方块]时调用。
+- `#getOwner` 和 `#setOwner`，分别获取和设置所有者实体。
+- `#deflect`，根据传递的 `ProjectileDeflection` 枚举值偏转弹射物。
+- `#onDeflection`，从 `#deflect` 调用，用于任何偏转后的行为。
 
 [block]: ../blocks/index.md
 [damageevents]: livingentity.md#damage-events

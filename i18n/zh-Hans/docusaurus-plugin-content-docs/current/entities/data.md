@@ -1,70 +1,69 @@
 ---
 sidebar_position: 2
 ---
-# Data and Networking
+# 数据与网络 (Data and Networking)
 
-An entity without data is quite useless, as such, storing data on an entity is essential. All entities store some default data, such as their type and their position. This article will explain how to add your own data, as well as how to synchronize that data.
+没有数据的实体相当无用，因此，在实体上存储数据是必不可少的。所有实体都存储一些默认数据，例如它们的类型和位置。本文将解释如何添加你自己的数据，以及如何同步这些数据。
 
-The most simple way to add data is as a field in your `Entity` class. You can then interact with this data in any way you wish. However, this quickly becomes very annoying as soon as you have to synchronize that data. This is because most entity logic is run on the server only, and it is only occasionally (depending on the [`EntityType`][entitytype]'s `clientUpdateInterval` value) that an update is sent to the client; this is also the cause for easily noticeable entity "lags" when the server's tick speed is too slow.
+添加数据的最简单方法是作为 `Entity` 类中的一个字段。然后你可以以任何你希望的方式与此数据交互。然而，一旦你需要同步这些数据，这很快就会变得非常烦人。这是因为大多数实体逻辑仅在服务器上运行，并且仅偶尔（取决于[`EntityType`][entitytype]的 `clientUpdateInterval` 值）向客户端发送更新；这也是当服务器的刻速度(tick speed)太慢时容易注意到的实体“延迟”的原因。
 
-As such, vanilla introduces a few systems to help with that, each of which serves a specific purpose. You also always have the option of [sending custom data][custom] when necessary.
+因此，原版引入了一些系统来帮助解决这个问题，每个系统都有特定的用途。你也可以在必要时选择[发送自定义数据][custom]。
 
 ## `SynchedEntityData`
 
-`SynchedEntityData` is a system used for storing values at runtime and syncing them over the network. It is split into three classes:
+`SynchedEntityData` 是一个用于在运行时存储值并通过网络同步的系统。它分为三个类：
+- `EntityDataSerializer`：基本上是围绕[`StreamCodec`][streamcodec]的包装器。
+    - Minecraft 使用硬编码的序列化器映射。NeoForge 将此映射转换为注册表，这意味着如果你想添加新的 `EntityDataSerializer`，必须通过[注册(registration)]添加。
+    - Minecraft 在 `EntityDataSerializers` 类中定义了各种默认的 `EntityDataSerializer`。
+- `EntityDataAccessor`：由实体持有，用于获取和设置数据值。
+- `SynchedEntityData` 本身持有实体的所有 `EntityDataAccessor`，并在需要时自动调用 `EntityDataSerializer` 来同步值。
 
-- `EntityDataSerializer`s are basically wrappers around a [`StreamCodec`][streamcodec].
-    - Minecraft uses a hard-coded map of serializers. NeoForge transforms this map into a registry, meaning that if you want to add new `EntityDataSerializer`s, they must be added by [registration].
-    - Minecraft defines various default `EntityDataSerializer`s in the `EntityDataSerializers` class.
-- `EntityDataAccessor`s are held by the entity and are used to get and set the data values.
-- `SynchedEntityData` itself holds all `EntityDataAccessor`s for an entity, and automatically calls on the `EntityDataSerializer`s to sync values as needed.
+首先，在你的实体类中创建一个 `EntityDataAccessor`：
 
-To get started, create an `EntityDataAccessor` in your entity class:
-
-```java
+``` java
 public class MyEntity extends Entity {
-    // The generic type must match the one of the second parameter below.
+    // 泛型类型必须与下面第二个参数的类型匹配。
     public static final EntityDataAccessor<Integer> MY_DATA =
         SynchedEntityData.defineId(
-            // The class of the entity.
+            // 实体的类。
             MyEntity.class,
-            // The entity data accessor type.
+            // 实体数据访问器类型。
             EntityDataSerializers.INT
         );
 }
 ```
 
 :::danger
-While the compiler will allow you to use a class other than the owning class as the first parameter in `SynchedEntityData#defineId()`, doing so can and will lead to hard-to-debug issues and, as such, is to be avoided at all costs. (This also includes adding fields via mixins or similar methods.)
+虽然编译器会允许你在 `SynchedEntityData#defineId()` 中使用非所属类作为第一个参数，但这样做会导致难以调试的问题，因此应不惜一切代价避免。（这包括通过mixin或类似方法添加字段。）
 :::
 
-We must then define default values in the `defineSynchedData` method, like so:
+然后，我们必须在 `defineSynchedData` 方法中定义默认值，如下所示：
 
-```java
+``` java
 public class MyEntity extends Entity {
     public static final EntityDataAccessor<Integer> MY_DATA = SynchedEntityData.defineId(MyEntity.class, EntityDataSerializers.INT);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        // Our default value is zero.
+        // 我们的默认值为零。
         builder.define(MY_DATA, 0);
     }
 }
 ```
 
-Finally, we can get and set entity data like so (assuming we're in a method within `MyEntity`):
+最后，我们可以像这样获取和设置实体数据（假设我们在 `MyEntity` 的某个方法中）：
 
-```java
+``` java
 int data = this.getEntityData().get(MY_DATA);
 this.getEntityData().set(MY_DATA, 1);
 ```
 
-## `readAdditionalSaveData` and `addAdditionalSaveData`
+## `readAdditionalSaveData` 和 `addAdditionalSaveData`
 
-These two methods are used to read and write data to disk. They work by loading/saving your values from/to a [value I/O][valueio], like so:
+这两个方法用于从磁盘读取和写入数据。它们通过从[值输入/输出(value I/O)][valueio]加载/保存你的值来工作，如下所示：
 
-```java
-// Assume that an `int data` exists in the class.
+``` java
+// 假设类中存在一个 `int data`。
 @Override
 protected void readAdditionalSaveData(ValueInput input) {
     this.data = input.getIntOr("my_data", 0);
@@ -76,11 +75,11 @@ protected void addAdditionalSaveData(ValueOutput output) {
 }
 ```
 
-## Custom Spawn Data
+## 自定义生成数据 (Custom Spawn Data)
 
-In some cases, there is custom data needed for your entity on the client when it is spawned, but that same data doesn't change over time. When this is the case, you can implement the `IEntityWithComplexSpawn` interface on your entity and use its two methods `#writeSpawnData` and `#readSpawnData` to write/read data to/from the network buffer:
+在某些情况下，当你的实体在客户端生成时，需要一些自定义数据，但这些数据不会随时间改变。此时，你可以在你的实体上实现 `IEntityWithComplexSpawn` 接口，并使用它的两个方法 `#writeSpawnData` 和 `#readSpawnData` 来向网络缓冲区写入/读取数据：
 
-```java
+``` java
 @Override
 public void writeSpawnData(RegistryFriendlyByteBuf buf) {
     buf.writeInt(1234);
@@ -92,27 +91,27 @@ public void readSpawnData(RegistryFriendlyByteBuf buf) {
 }
 ```
 
-Additionally, you can send your own packets upon spawning. To do so, override `IEntityExtension#sendPairingData` and send your packets there like any other packet:
+此外，你可以在生成时发送自己的数据包。为此，重写 `IEntityExtension#sendPairingData` 并像发送任何其他数据包一样在那里发送你的数据包：
 
-```java
+``` java
 @Override
 public void sendPairingData(ServerPlayer player, Consumer<CustomPacketPayload> packetConsumer) {
-    // Call super for some base functionality.
+    // 调用超类以获取一些基础功能。
     super.sendPairingData(player, packetConsumer);
-    // Add your own packets.
+    // 添加你自己的数据包。
     packetConsumer.accept(new MyPacket(...));
 }
 ```
 
-Please refer to the [Networking articles][networking] for more information on custom network packets.
+有关自定义网络数据包的更多信息，请参考[网络(Networking)文章][networking]。
 
-## Data Attachments
+## 数据附件 (Data Attachments)
 
-Entities have been patched to extend `AttachmentHolder` and as such support data storage via [data attachments][attachment]. Its main use is to define custom data on entities that are not your own, i.e., entities added by Minecraft or other mods. Please see the linked article for more information.
+实体已被修补以扩展 `AttachmentHolder`，因此支持通过[数据附件(data attachments)][attachment]进行数据存储。其主要用途是在不属于你自己的实体（即由Minecraft或其他模组添加的实体）上定义自定义数据。请参阅链接文章以获取更多信息。
 
-## Custom Network Messages
+## 自定义网络消息 (Custom Network Messages)
 
-For syncing, you can also always opt to use a custom packet to send additional information when needed. Please refer to the [Networking articles][networking] for more information.
+对于同步，你也可以选择在需要时使用自定义数据包发送额外信息。有关更多信息，请参考[网络(Networking)文章][networking]。
 
 [attachment]: ../datastorage/attachments.md
 [custom]: #custom-network-messages
