@@ -5,40 +5,39 @@ sidebar_position: 5
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Armor
+# 盔甲(Armor)
 
-Armors are [items][item] whose primary use is to protect a [`LivingEntity`][livingentity] from damage using a variety of resistances and effects. Many mods add new armor sets (for example copper armor).
+盔甲是[物品(Item)][item]，其主要用途是利用各种抗性和效果保护[`LivingEntity`(生物实体)][livingentity]免受伤害。许多模组添加了新的盔甲套装（例如铜盔甲）。
 
-## Custom Armor Sets
+## 自定义盔甲套装(Custom Armor Sets)
 
-An armor set for a humanoid entity typically consists of four items: a helmet for the head, a chestplate for the chest, leggings for the legs, and boots for the feet. There is also armor for wolves, horses, and llamas that are applied to a 'body' armor slot specifically for animals. All of these items are generally implemented through seven [data components][datacomponents]: 
+类人实体的盔甲套装通常由四个物品组成：头盔、胸甲、护腿和靴子。还有适用于狼、马和羊驼的盔甲，它们被应用于专门为动物设置的“身体”盔甲槽位。所有这些物品通常通过七个[数据组件(Data Component)][datacomponents]来实现：
 
-- `DataComponents#MAX_DAMAGE` and `#DAMAGE` for durability
-- `#MAX_STACK_SIZE` to set the stack size to `1`
-- `#REPAIRABLE` for repairing an armor piece in an anvil
-- `#ENCHANTABLE` for the maximum [enchanting][enchantment] value
-- `#ATTRIBUTE_MODIFIERS` for armor, armor toughness, and knockback resistance
-- `#EQUIPPABLE` for how the entity can equip the item.
+- `DataComponents#MAX_DAMAGE` 和 `#DAMAGE` 用于耐久度
+- `#MAX_STACK_SIZE` 将堆叠大小设置为 `1`
+- `#REPAIRABLE` 用于在铁砧中修复盔甲部件
+- `#ENCHANTABLE` 用于最大[附魔(Enchanting)][enchantment]值
+- `#ATTRIBUTE_MODIFIERS` 用于盔甲值、盔甲韧性和击退抗性
+- `#EQUIPPABLE` 用于实体如何装备该物品。
 
-Commonly, each armor is setup using `Item.Properties#humanoidArmor` for humanoid entities, `wolfArmor` for wolves, and `horseArmor` for horses. They all use `ArmorMaterial` combined with `ArmorType` for humanoids to set up the components. Reference values can be found within `ArmorMaterials`. This example uses a copper armor material, which you can adjust the values of as needed.
+通常，每个盔甲都使用 `Item.Properties#humanoidArmor` 为类人实体设置，使用 `wolfArmor` 为狼设置，使用 `horseArmor` 为马设置。它们都使用 `ArmorMaterial` 结合 `ArmorType`（对于类人实体）来设置组件。参考值可以在 `ArmorMaterials` 中找到。此示例使用铜盔甲材料，你可以根据需要调整其值。
 
-```java
-// The resource key of the equipment asset used to link
-// the `EquipmentClientInfo` JSON discussed below.
-// Points to assets/examplemod/equipment/copper.json
+``` java
+// 用于链接下面讨论的 `EquipmentClientInfo` JSON 的设备资产资源键。
+// 指向 assets/examplemod/equipment/copper.json
 public static final ResourceKey<EquipmentAsset> COPPER_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "copper"));
 
 public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
-    // The durability multiplier of the armor material.
-    // ArmorType have different unit durabilities that the multiplier is applied to:
+    // 盔甲材料的耐久度乘数。
+    // ArmorType 有不同的单位耐久度，乘数将应用于此：
     // - HELMET: 11
     // - CHESTPLATE: 16
     // - LEGGINGS: 15
     // - BOOTS: 13
     // - BODY: 16
     15,
-    // Determines the defense value (or the number of half-armors on the bar).
-    // Based on ArmorType.
+    // 决定防御值（或护甲条上的半护甲数量）。
+    // 基于 ArmorType。
     Util.make(new EnumMap<>(ArmorType.class), map -> {
         map.put(ArmorItem.Type.BOOTS, 2);
         map.put(ArmorItem.Type.LEGGINGS, 4);
@@ -46,40 +45,40 @@ public static final ArmorMaterial COPPER_ARMOR_MATERIAL = new ArmorMaterial(
         map.put(ArmorItem.Type.HELMET, 2);
         map.put(ArmorItem.Type.BODY, 4);
     }),
-    // Determines the enchantability of the armor. This represents how good the enchantments on this armor will be.
-    // Gold uses 25; we put copper slightly below that.
+    // 决定盔甲的可附魔性。这表示此盔甲上附魔的效果将有多好。
+    // 金使用 25；我们将铜设置得略低于此。
     20,
-    // Determines the sound played when equipping this armor.
-    // This is wrapped with a Holder.
+    // 决定装备此盔甲时播放的声音。
+    // 此声音被 Holder 包装。
     SoundEvents.ARMOR_EQUIP_GENERIC,
-     // Returns the toughness value of the armor. The toughness value is an additional value included in
-    // damage calculation, for more information, refer to the Minecraft Wiki's article on armor mechanics:
+     // 返回盔甲的韧性值。韧性值是伤害计算中包含的额外值，
+    // 更多信息，请参阅 Minecraft Wiki 关于盔甲机制的文章：
     // https://minecraft.wiki/w/Armor#Armor_toughness
-    // Only diamond and netherite have values greater than 0 here, so we just return 0.
+    // 只有钻石和下界合金的韧性值大于 0，因此我们只返回 0。
     0,
-    // Returns the knockback resistance value of the armor. While wearing this armor, the player is
-    // immune to knockback to some degree. If the player has a total knockback resistance value of 1 or greater
-    // from all armor pieces combined, they will not take any knockback at all.
-    // Only netherite has values greater than 0 here, so we just return 0.
+    // 返回盔甲的击退抗性值。穿戴此盔甲时，玩家在一定程度免疫击退。
+    // 如果玩家从所有盔甲部件组合获得的总击退抗性值大于或等于 1，
+    // 他们将完全不会受到击退。
+    // 只有下界合金的击退抗性值大于 0，因此我们只返回 0。
     0,
-    // The tag that determines what items can repair this armor.
+    // 决定哪些物品可以修复此盔甲的标签。
     Tags.Items.INGOTS_COPPER,
-    // The resource key of the EquipmentClientInfo JSON discussed below.
+    // 下面讨论的 EquipmentClientInfo JSON 的资源键。
     COPPER_ASSET
 );
 ```
 
-Now that we have our `ArmorMaterial`, we can use it for [registering] armor:
+现在我们有了 `ArmorMaterial`，我们可以用它来[注册(Registering)][registering]盔甲：
 
-```java
-// ITEMS is a DeferredRegister.Items
+``` java
+// ITEMS 是一个 DeferredRegister.Items
 public static final DeferredItem<Item> COPPER_HELMET = ITEMS.registerItem(
     "copper_helmet",
     props -> new Item(
         props.humanoidArmor(
-            // The material to use.
+            // 使用的材料。
             COPPER_ARMOR_MATERIAL,
-            // The type of armor to create.
+            // 要创建的盔甲类型。
             ArmorType.HELMET
         )
     )
@@ -95,7 +94,7 @@ public static final DeferredItem<Item> COPPER_BOOTS =
 public static final DeferredItem<Item> COPPER_WOLF_ARMOR = ITEMS.registerItem(
     "copper_wolf_armor",
     props -> new Item(
-        // The material to use.
+        // 使用的材料。
         props.wolfArmor(COPPER_ARMOR_MATERIAL)
     )
 );
@@ -104,151 +103,150 @@ public static final DeferredItem<Item> COPPER_HORSE_ARMOR =
     ITEMS.registerItem("copper_horse_armor", props -> new Item(props.horseArmor(...)));
 ```
 
-If you want to create armor or an armor-like item from scratch, it can be implemented using a combination of the following parts:
+如果你想从头开始创建盔甲或类似盔甲的物品，可以使用以下部分的组合来实现：
 
-- Adding a `Equippable` with your own requirements by setting `DataComponents#EQUIPPABLE` via `Item.Properties#component`.
-- Adding attributes to the item (e.g. armor, toughness, knockback) via `Item.Properties#attributes`.
-- Adding item durability via `Item.Properties#durability`.
-- Allowing the item to be repaired via `Item.Properties#repariable`.
-- Allowing the item to be enchanted via `Item.Properties#enchantable`.
-- Adding your armor to some of the `minecraft:enchantable/*` `ItemTags` so that your item can have certain enchantments applied to it.
+- 通过 `Item.Properties#component` 设置 `DataComponents#EQUIPPABLE` 来添加一个带有你自己要求的 `Equippable`。
+- 通过 `Item.Properties#attributes` 为物品添加属性（例如盔甲值、韧性、击退抗性）。
+- 通过 `Item.Properties#durability` 为物品添加耐久度。
+- 通过 `Item.Properties#repairable` 允许物品被修复。
+- 通过 `Item.Properties#enchantable` 允许物品被附魔。
+- 将你的盔甲添加到一些 `minecraft:enchantable/*` `ItemTags` 中，以便你的物品可以应用某些附魔。
 
 ### `Equippable`
 
-`Equippable` is a data component that contains how an entity can equip this item and what handles the rendering in game. This allows any item, regardless of whether it is considered 'armor', to be equipped if this component is available (e.g., saddles, carpets on llamas). Each item with this component can only be equipped to a single `EquipmentSlot`.
+`Equippable` 是一个数据组件，它包含实体如何装备此物品以及游戏中处理渲染的方式。这使得任何物品，无论是否被视为“盔甲”，只要拥有此组件就可以被装备（例如，马鞍、羊驼上的地毯）。每个拥有此组件的物品只能装备到单个 `EquipmentSlot`。
 
-An `Equippable` can be created either by directly calling the record constructor or via `Equippable#builder`, which sets the defaults for each field, folowed by `build` once finished:
+可以通过直接调用记录构造函数或通过 `Equippable#builder` 创建 `Equippable`，后者为每个字段设置默认值，完成后调用 `build`：
 
-```java
-// The resource key of the equipment asset used to link
-// the `EquipmentClientInfo` JSON discussed below.
-// Points to assets/examplemod/equipment/equippable.json
+``` java
+// 用于链接下面讨论的 `EquipmentClientInfo` JSON 的设备资产资源键。
+// 指向 assets/examplemod/equipment/equippable.json
 public static final ResourceKey<EquipmentAsset> EXAMPLE_EQUIPABBLE = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath("examplemod", "equippable"));
 
-// Assume there is some DeferredRegister.Items ITEMS
+// 假设有一些 DeferredRegister.Items ITEMS
 public static final DeferredItem<Item> EQUIPPABLE = ITEMS.registerSimpleItem(
     "equippable",
     new Item.Properties().component(
         DataComponents.EQUIPPABLE,
-        // Sets the slot that this item can be equipped to.
+        // 设置此物品可以装备到的槽位。
         Equippable.builder(EquipmentSlot.HELMET)
-            // Determines the sound played when equipping this item.
-            // This is wrapped with a Holder.
-            // Defaults to SoundEvents#ARMOR_EQUIP_GENERIC.
+            // 决定装备此物品时播放的声音。
+            // 此声音被 Holder 包装。
+            // 默认为 SoundEvents#ARMOR_EQUIP_GENERIC。
             .setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC)
-            // The resource key of the EquipmentClientInfo JSON discussed below.
-            // When not set, does not render the equipment.
+            // 下面讨论的 EquipmentClientInfo JSON 的资源键。
+            // 未设置时，不渲染装备。
             .setAsset(ResourceKey.create(EXAMPLE_EQUIPABBLE))
-            // The relative location of the texture to overlay on the player screen when wearing (e.g., pumpkin blur).
-            // Points to assets/examplemod/textures/equippable.png
-            // When not set, does not render an overlay.
+            // 穿戴时在玩家屏幕上覆盖纹理的相对位置（例如，南瓜模糊效果）。
+            // 指向 assets/examplemod/textures/equippable.png
+            // 未设置时，不渲染覆盖层。
             .setCameraOverlay(ResourceLocation.withDefaultNamespace("examplemod", "equippable"))
-            // A HolderSet of entity types (direct or tag) that can equip this item.
-            // When not set, any entity can equip this item.
+            // 可以装备此物品的实体类型（直接或标签）的 HolderSet。
+            // 未设置时，任何实体都可以装备此物品。
             .setAllowedEntities(EntityType.ZOMBIE)
-            // Whether the item can be equipped when dispensed from a dispenser.
-            // Defaults to true.
+            // 物品是否可以从发射器中装备。
+            // 默认为 true。
             .setDispensable(true),
-            // Whether the item can be swapped off the player during a quick equip.
-            // Defaults to true.
+            // 物品是否可以在快速装备时从玩家身上换下。
+            // 默认为 true。
             .setSwappable(false),
-            // Whether the item should be damaged when attacked (for equipment typically).
-            // Must also be a damageable item.
-            // Defaults to true.
+            // 物品在受到攻击时是否应该受到损坏（通常用于装备）。
+            // 还必须是一个可损坏的物品。
+            // 默认为 true。
             .setDamageOnHurt(false)
-            // Whether the item can be equipped onto another entity on interaction (e.g., right click).
-            // Defaults to false.
+            // 物品是否可以通过交互（例如，右键单击）装备到另一个实体上。
+            // 默认为 false。
             .setEquipOnInteract(true)
-            // When true, an item with the SHEAR_REMOVE_ARMOR item ability can remove the equipped item.
-            // Defaults to false.
+            // 为 true 时，具有 SHEAR_REMOVE_ARMOR 物品能力的物品可以移除装备的物品。
+            // 默认为 false。
             .setCanBeSheared(true)
-            // The sound to play when shearing this equipped item.
-            // This is wrapped with a holder.
-            // Defaults to SoundEvents#SHEARS_SNIP.
+            // 剪切此装备物品时播放的声音。
+            // 此声音被 Holder 包装。
+            // 默认为 SoundEvents#SHEARS_SNIP。
             .setShearingSound(SoundEvents.SADDLE_UNEQUIP)
             .build()
     )
 );
 ```
 
-## Equipment Assets
+## 设备资产(Equipment Assets)
 
-Now we have some armor in game, but if we try to wear it, nothing will render since we never specified how to render the equipment. To do so, we need to create an `EquipmentClientInfo` JSON at the location specified by `Equippable#assetId`, relative to the `equipment` folder of the [resource pack][respack] (`assets` folder). The `EquipmentClientInfo` specifies the associated textures to use for each layer to render.
+现在我们在游戏中有了一些盔甲，但如果我们尝试穿戴它，什么也不会渲染，因为我们从未指定如何渲染装备。为此，我们需要在 `Equippable#assetId` 指定的位置创建一个 `EquipmentClientInfo` JSON，相对于[资源包(Resource Pack)][respack]的 `equipment` 文件夹（`assets` 文件夹）。`EquipmentClientInfo` 指定了用于渲染每个图层的关联纹理。
 
-An `EquipmentClientInfo` is functionally a map of `EquipmentClientInfo.LayerType`s to a list of `EquipmentClientInfo.Layer`s to apply.
+`EquipmentClientInfo` 在功能上是一个从 `EquipmentClientInfo.LayerType` 到要应用的 `EquipmentClientInfo.Layer` 列表的映射。
 
-The `LayerType` can be thought of as a group of textures to render for some instance. For example, `LayerType#HUMANOID` is used by the `HumanoidArmorLayer` to render the head, chest, and feet on humanoid entities; `LayerType#WOLF_BODY` is used by `WolfArmorLayer` to render the body armor. These can be combined into one equipment info JSON if they are for the same type of equippable, like copper armor.
+`LayerType` 可以被视为要为某个实例渲染的一组纹理。例如，`LayerType#HUMANOID` 被 `HumanoidArmorLayer` 用于在类人实体上渲染头部、胸部和脚部；`LayerType#WOLF_BODY` 被 `WolfArmorLayer` 用于渲染身体盔甲。如果它们是同一种可装备物品（如铜盔甲），可以将它们组合到一个设备信息 JSON 中。
 
-The `LayerType` maps to some list of `Layer`s to apply and render the textures in the order provided. A `Layer` effectively represents a single texture to render. The first parameter represents the location of the texture, relative to `textures/entity/equipment`.
+`LayerType` 映射到要应用和渲染的 `Layer` 列表，按照提供的顺序渲染纹理。一个 `Layer` 实际上代表要渲染的单个纹理。第一个参数表示纹理的位置，相对于 `textures/entity/equipment`。
 
-The second parameter is an optional that indicates whether the [texture can be tinted][tinting] as an `EquipmentClientInfo.Dyeable`. The `Dyeable` object holds an integer that, when present, indicates the default RGB color to tint the texture with. If this optional is not present, then pure white is used.
+第二个参数是一个可选参数，指示[纹理是否可以被染色(Tinting)][tinting]，作为一个 `EquipmentClientInfo.Dyeable`。`Dyeable` 对象持有一个整数，当存在时，表示用于染色纹理的默认 RGB 颜色。如果此可选参数不存在，则使用纯白色。
 
 :::warning
-For a tint other than the undyed color to be applied to the item, the item must be in the [`ItemTags#DYEABLE`][tag] and have the `DataComponents#DYED_COLOR` component set to some RGB value.
+要将非未染色颜色的染色应用于物品，该物品必须在 [`ItemTags#DYEABLE`][tag] 中，并且 `DataComponents#DYED_COLOR` 组件必须设置为某个 RGB 值。
 :::
 
-The third parameter is a boolean that indicates whether the texture provided during rendering should be used instead of the one defined within the `Layer`. An example of this is a custom cape or custom elytra texture for the player.
+第三个参数是一个布尔值，指示在渲染期间是否应使用提供的纹理，而不是 `Layer` 中定义的纹理。一个例子是玩家的自定义披风或自定义鞘翅纹理。
 
-Let's create an equipment info for the copper armor material. We'll also assume that for each layer there are two textures: one for the actual armor and one that is overlayed and tinted. For the animal armor, we'll say that there is some dynamic texture to be used that can be passed in.
+让我们为铜盔甲材料创建一个设备信息。我们还将假设每个图层有两个纹理：一个是实际的盔甲纹理，另一个是覆盖并染色的纹理。对于动物盔甲，我们将假设有一些动态纹理可以使用。
 
 <Tabs>
 <TabItem value="json" label="JSON" default>
 
-```json5
-// In assets/examplemod/equipment/copper.json
+``` json5
+// 在 assets/examplemod/equipment/copper.json 中
 {
-    // The layer map
+    // 图层映射
     "layers": {
-        // The serialized name of the EquipmentClientInfo.LayerType to apply.
-        // For humanoid head, chest, and feet
+        // 要应用的 EquipmentClientInfo.LayerType 的序列化名称。
+        // 用于类人实体头部、胸部和脚部
         "humanoid": [
-            // A list of layers to render in the order provided
+            // 按提供顺序渲染的图层列表
             {
-                // The relative texture of the armor
-                // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
+                // 盔甲的相关纹理
+                // 指向 assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
                 "texture": "examplemod:copper/outer"
             },
             {
-                // The overlay texture
-                // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
+                // 覆盖纹理
+                // 指向 assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
                 "texture": "examplemod:copper/outer_overlay",
-                // When specified, allows the texture to be tinted the color in DataComponents#DYED_COLOR
-                // Otherwise, cannot be tinted
+                // 指定时，允许纹理染成 DataComponents#DYED_COLOR 中的颜色
+                // 否则，不能染色
                 "dyeable": {
-                    // An RGB value (always opaque color)
-                    // 0x7683DE as decimal
-                    // When not specified, set to 0 (meaning transparent or invisible)
+                    // 一个 RGB 值（总是不透明颜色）
+                    // 0x7683DE 作为十进制
+                    // 未指定时，设置为 0（意味着透明或不可见）
                     "color_when_undyed": 7767006
                 }
             }
         ],
-        // For humanoid legs
+        // 用于类人实体腿部
         "humanoid_leggings": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
+                // 指向 assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
                 "texture": "examplemod:copper/inner"
             },
             {
-                // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
+                // 指向 assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
                 "texture": "examplemod:copper/inner_overlay",
                 "dyeable": {
                     "color_when_undyed": 7767006
                 }
             }
         ],
-        // For wolf armor
+        // 用于狼盔甲
         "wolf_body": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
+                // 指向 assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
                 "texture": "examplemod:copper/wolf",
-                // When true, uses the texture passed into the layer renderer instead
+                // 为 true 时，使用传入图层渲染器的纹理
                 "use_player_texture": true
             }
         ],
-        // For horse armor
+        // 用于马盔甲
         "horse_body": [
             {
-                // Points to assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
+                // 指向 assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
                 "texture": "examplemod:copper/horse",
                 "use_player_texture": true
             }
@@ -259,9 +257,9 @@ Let's create an equipment info for the copper armor material. We'll also assume 
 
 </TabItem>
 
-<TabItem value="datagen" label="Datagen">
+<TabItem value="datagen" label="数据生成">
 
-```java
+``` java
 public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
 
     public MyEquipmentInfoProvider(PackOutput output) {
@@ -271,65 +269,65 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
     @Override
     protected void registerModels(BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output) {
         output.accept(
-            // Must match Equippable#assetId
+            // 必须匹配 Equippable#assetId
             COPPER_ASSET,
             EquipmentClientInfo.builder()
-                // For humanoid head, chest, and feet
+                // 用于类人实体头部、胸部和脚部
                 .addLayers(
                     EquipmentClientInfo.LayerType.HUMANOID,
-                    // Base texture
+                    // 基础纹理
                     new EquipmentClientInfo.Layer(
-                        // The relative texture of the armor
-                        // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
+                        // 盔甲的相关纹理
+                        // 指向 assets/examplemod/textures/entity/equipment/humanoid/copper/outer.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer"),
                         Optional.empty(),
                         false
                     ),
-                    // Overlay texture
+                    // 覆盖纹理
                     new EquipmentClientInfo.Layer(
-                        // The overlay texture
-                        // Points to assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
+                        // 覆盖纹理
+                        // 指向 assets/examplemod/textures/entity/equipment/humanoid/copper/outer_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/outer_overlay"),
-                        // An RGB value (always opaque color)
-                        // When not specified, set to 0 (meaning transparent or invisible)
+                        // 一个 RGB 值（总是不透明颜色）
+                        // 未指定时，设置为 0（意味着透明或不可见）
                         Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
                     )
                 )
-                // For humanoid legs
+                // 用于类人实体腿部
                 .addLayers(
                     EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS,
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
+                        // 指向 assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner"),
                         Optional.empty(),
                         false
                     ),
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
+                        // 指向 assets/examplemod/textures/entity/equipment/humanoid_leggings/copper/inner_overlay.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/inner_overlay"),
                         Optional.of(new EquipmentClientInfo.Dyeable(Optional.of(0x7683DE))),
                         false
                     )
                 )
-                // For wolf armor
+                // 用于狼盔甲
                 .addLayers(
                     EquipmentClientInfo.LayerType.WOLF_BODY,
-                    // Base texture
+                    // 基础纹理
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
+                        // 指向 assets/examplemod/textures/entity/equipment/wolf_body/copper/wolf.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/wolf"),
                         Optional.empty(),
-                        // When true, uses the texture passed into the layer renderer instead
+                        // 为 true 时，使用传入图层渲染器的纹理
                         true
                     )
                 )
-                // For horse armor
+                // 用于马盔甲
                 .addLayers(
                     EquipmentClientInfo.LayerType.HORSE_BODY,
-                    // Base texture
+                    // 基础纹理
                     new EquipmentClientInfo.Layer(
-                        // Points to assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
+                        // 指向 assets/examplemod/textures/entity/equipment/horse_body/copper/horse.png
                         ResourceLocation.fromNamespaceAndPath("examplemod", "copper/horse"),
                         Optional.empty(),
                         true
@@ -340,7 +338,7 @@ public class MyEquipmentInfoProvider extends EquipmentAssetProvider {
     }
 }
 
-@SubscribeEvent // on the mod event bus
+@SubscribeEvent // 在模组事件总线上
 public static void gatherData(GatherDataEvent.Client event) {
     event.createProvider(MyEquipmentInfoProvider::new);
 }
@@ -349,61 +347,61 @@ public static void gatherData(GatherDataEvent.Client event) {
 </TabItem>
 </Tabs>
 
-## Equipment Rendering
+## 装备渲染(Equipment Rendering)
 
-The equipment infos are rendered via the `EquipmentLayerRenderer` in the render function of an `EntityRenderer` or one of its `RenderLayer`s. `EquipmentLayerRenderer` is obtained as part of the render context via `EntityRendererProvider.Context#getEquipmentRenderer`. If the `EquipmentClientInfo`s are required, they are also available via `EntityRendererProvider.Context#getEquipmentAssets`.
+设备信息通过 `EquipmentLayerRenderer` 在 `EntityRenderer` 或其 `RenderLayer` 之一的渲染函数中渲染。`EquipmentLayerRenderer` 作为渲染上下文的一部分通过 `EntityRendererProvider.Context#getEquipmentRenderer` 获取。如果需要 `EquipmentClientInfo`，也可以通过 `EntityRendererProvider.Context#getEquipmentAssets` 获取。
 
-By default, the following layers render the associated `EquipmentClientInfo.LayerType`:
+默认情况下，以下图层渲染关联的 `EquipmentClientInfo.LayerType`：
 
-| `LayerType`             | `RenderLayer`          | Used by                                                        |
+| `LayerType`             | `RenderLayer`          | 使用对象                                                         |
 |:-----------------------:|:----------------------:|:---------------------------------------------------------------|
-| `HUMANOID`              | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `HUMANOID_LEGGINGS`     | `HumanoidArmorLayer`   | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `WINGS`                 | `WingsLayer`           | Player, humanoid mobs (e.g., zombies, skeletons), armor stands |
-| `WOLF_BODY`             | `WolfArmorLayer`       | Wolf                                                           |
-| `HORSE_BODY`            | `HorseArmorLayer`      | Horse                                                          |
-| `LLAMA_BODY`            | `LlamaDecorLayer`      | Llama, trader llama                                            |
-| `PIG_SADDLE`            | `SimpleEquipmentLayer` | Pig                                                            |
-| `STRIDER_SADDLE`        | `SimpleEquipmentLayer` | Strider                                                        |
-| `CAMEL_SADDLE`          | `SimpleEquipmentLayer` | Camel                                                          |
-| `HORSE_SADDLE`          | `SimpleEquipmentLayer` | Horse                                                          |
-| `DONKEY_SADDLE`         | `SimpleEquipmentLayer` | Donkey                                                         |
-| `MULE_SADDLE`           | `SimpleEquipmentLayer` | Mule                                                           |
-| `ZOMBIE_HORSE_SADDLE`   | `SimpleEquipmentLayer` | Zombie Horse                                                   |
-| `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | Skeleton Horse                                                 |
-| `HAPPY_GHAST_BODY`      | `SimpleEquipmentLayer` | Happy Ghast                                                    |
+| `HUMANOID`              | `HumanoidArmorLayer`   | 玩家、类人生物（例如僵尸、骷髅）、盔甲架                                       |
+| `HUMANOID_LEGGINGS`     | `HumanoidArmorLayer`   | 玩家、类人生物（例如僵尸、骷髅）、盔甲架                                       |
+| `WINGS`                 | `WingsLayer`           | 玩家、类人生物（例如僵尸、骷髅）、盔甲架                                       |
+| `WOLF_BODY`             | `WolfArmorLayer`       | 狼                                                             |
+| `HORSE_BODY`            | `HorseArmorLayer`      | 马                                                             |
+| `LLAMA_BODY`            | `LlamaDecorLayer`      | 羊驼、行商羊鹿                                                        |
+| `PIG_SADDLE`            | `SimpleEquipmentLayer` | 猪                                                             |
+| `STRIDER_SADDLE`        | `SimpleEquipmentLayer` | 炽足兽                                                           |
+| `CAMEL_SADDLE`          | `SimpleEquipmentLayer` | 骆驼                                                            |
+| `HORSE_SADDLE`          | `SimpleEquipmentLayer` | 马                                                             |
+| `DONKEY_SADDLE`         | `SimpleEquipmentLayer` | 驴                                                             |
+| `MULE_SADDLE`           | `SimpleEquipmentLayer` | 骡                                                             |
+| `ZOMBIE_HORSE_SADDLE`   | `SimpleEquipmentLayer` | 僵尸马                                                           |
+| `SKELETON_HORSE_SADDLE` | `SimpleEquipmentLayer` | 骷髅马                                                           |
+| `HAPPY_GHAST_BODY`      | `SimpleEquipmentLayer` | 快乐的恶魂                                                        |
 
-`EquipmentLayerRenderer` has only one method to submit the equipment layers for rendering: `renderLayers`.
+`EquipmentLayerRenderer` 只有一个方法来提交装备图层进行渲染：`renderLayers`。
 
-```java
-// In some render method where EquipmentLayerRenderer equipmentLayerRenderer is available
+``` java
+// 在某个渲染方法中，其中 EquipmentLayerRenderer equipmentLayerRenderer 可用
 this.equipmentLayerRenderer.renderLayers(
-    // The layer type to render
+    // 要渲染的图层类型
     EquipmentClientInfo.LayerType.HUMANOID,
-    // The resource key representing the EquipmentClientInfo JSON
-    // This would be set in the `EQUIPPABLE` data component via `assetId`
+    // 代表 EquipmentClientInfo JSON 的资源键
+    // 这将在 `EQUIPPABLE` 数据组件中通过 `assetId` 设置
     stack.get(DataComponents.EQUIPPABLE).assetId().orElseThrow(),
-    // The model to apply the equipment info to
-    // These are usually separate models from the entity model
-    // and are separate ModelLayers linking to a LayerDefinition
+    // 要应用装备信息的模型
+    // 这些通常是与实体模型分开的单独模型
+    // 并且是链接到 LayerDefinition 的单独 ModelLayers
     model,
-    // The item stack representing the item being rendered as a model
-    // This is only used to get the dyeable, foil, and armor trim information
+    // 代表作为模型渲染的物品的物品堆叠
+    // 这仅用于获取可染色、闪烁和盔甲装饰信息
     stack,
-    // The pose stack used to render the model in the correct location
+    // 用于在正确位置渲染模型的姿势堆叠
     poseStack,
-    // The collector to submit the model data to
+    // 将模型数据提交到的收集器
     collector,
-    // The packed light coordinates
+    // 打包的光照坐标
     lightCoords,
-    // An absolute path of the texture to render when use_player_texture is true for one of the layer if not null
-    // Represents an absolute location within the assets folder
+    // 当图层中某个图层的 use_player_texture 为 true 时要渲染的纹理的绝对路径，如果不为 null
+    // 代表 assets 文件夹内的绝对位置
     ResourceLocation.fromNamespaceAndPath("examplemod", "textures/other_texture.png"),
-    // The color of the model outline
-    // Only used if the outline color is not 0 and the `RenderType` has or is an outline type
+    // 模型轮廓的颜色
+    // 仅当轮廓颜色不为 0 且 `RenderType` 具有或是轮廓类型时使用
     outlineColor,
-    // The starting order priority to submit the layers and trims, ticking up with each model submitted
-    // By default, this is 1
+    // 提交图层和装饰的起始顺序优先级，每次提交模型时递增
+    // 默认情况下，此为 1
     order
 );
 ```
