@@ -1,204 +1,204 @@
-# Loot Tables
+# 战利品表
 
-Loot tables are data files that are used to define randomized loot drops. A loot table can be rolled, returning a (potentially empty) list of item stacks. The output of this process depends on (pseudo-)randomness. Loot tables are located at `data/<mod_id>/loot_table/<name>.json`. For example, the loot table `minecraft:blocks/dirt`, used by the dirt block, is located at `data/minecraft/loot_table/blocks/dirt.json`.
+战利品表是用于定义随机掉落物的数据文件。可以掷出战利品表，返回一个（可能为空的）物品堆列表。此过程的输出取决于（伪）随机性。战利品表位于 `data/<mod_id>/loot_table/<名称>.json`。例如，泥土块使用的战利品表 `minecraft:blocks/dirt` 位于 `data/minecraft/loot_table/blocks/dirt.json`。
 
-Minecraft uses loot tables at various points in the game, including [block] drops, [entity] drops, chest loot, fishing loot, and many others. How a loot table is referenced depends on the context:
+Minecraft 在游戏中的多个位置使用战利品表，包括[方块][block]掉落、[实体][entity]掉落、箱子战利品、钓鱼战利品等。如何引用战利品表取决于上下文：
 
-- Every block will, by default, receive an associated loot table, located at `<block_namespace>:blocks/<block_name>`. This can be disabled by calling `#noLootTable` on the block's `Properties`, resulting in no loot table being created and the block dropping nothing; this is mainly done by air-like or technical blocks.
-- Every entity that does not call `EntityType.Builder#noLootTable` (which is typically entities in `MobCategory#MISC`) will, by default, receive an associated loot table, located at `<entity_namespace>:entities/<entity_name>`. This can be changed by overriding `#getLootTable`. For example, sheep use this to roll different loot tables depending on their wool color.
-- Chests in structures specify their loot table in their block entity data. Minecraft stores all chest loot tables in `minecraft:chests/<chest_name>`; it is recommended, but not required to follow this practice in mods.
-- The loot tables for gift items that villagers may throw at players after a raid are defined in the [`neoforge:raid_hero_gifts` data map][raidherogifts].
-- Other loot tables, for example the fishing loot table, are retrieved when needed from `level.getServer().reloadableRegistries().getLootTable(lootTableKey)`. A list of all vanilla loot table locations can be found in `BuiltInLootTables`.
+- 默认情况下，每个方块都会获得一个关联的战利品表，位于 `<方块命名空间>:blocks/<方块名称>`。可以通过在方块的 `Properties` 上调用 `#noLootTable` 来禁用，导致不创建战利品表且方块不掉落任何物品；这主要由空气类或技术性方块完成。
+- 每个未调用 `EntityType.Builder#noLootTable`（通常是 `MobCategory#MISC` 中的实体）的实体将默认获得一个关联的战利品表，位于 `<实体命名空间>:entities/<实体名称>`。可以通过重写 `#getLootTable` 来更改。例如，绵羊使用这个来根据羊毛颜色掷出不同的战利品表。
+- 结构中的箱子在其方块实体数据中指定其战利品表。Minecraft 将所有箱子战利品表存储在 `minecraft:chests/<箱子名称>` 中；建议但不强制要求模组遵循此惯例。
+- 袭击后村民可能向玩家投掷的礼物物品的战利品表在 [`neoforge:raid_hero_gifts` 数据映射][raidherogifts]中定义。
+- 其他战利品表，例如钓鱼战利品表，在需要时从 `level.getServer().reloadableRegistries().getLootTable(lootTableKey)` 获取。所有原版战利品表位置的列表可以在 `BuiltInLootTables` 中找到。
 
 :::warning
-Loot tables should generally only be created for stuff that belongs to your mod. For modifying existing loot tables, [global loot modifiers (GLMs)][glm] should be used instead.
+通常只应为属于你模组的东西创建战利品表。对于修改现有战利品表，应改用[全局战利品修改器 (GLMs)][glm]。
 :::
 
-Due to the complexity of the loot table system, loot tables are compromised of several sub-systems that each have a different purpose.
+由于战利品表系统的复杂性，战利品表由几个子系统组成，每个子系统都有不同的用途。
 
-## Loot Entry
+## 战利品条目
 
-A loot entry (or loot pool entry), represented in code through the abstract `LootPoolEntryContainer` class, is a singular loot element. It can specify one or multiple items to be dropped.
+战利品条目（或战利品池条目），在代码中通过抽象类 `LootPoolEntryContainer` 表示，是一个单一的战利品元素。它可以指定一个或多个要掉落的物品。
 
-Vanilla provides a total of 8 different loot entry types. Through the common `LootPoolEntryContainer` superclass, all of them have the following properties:
+原版总共提供了 8 种不同的战利品条目类型。通过公共的 `LootPoolEntryContainer` 超类，它们都具有以下属性：
 
-- `weight`: The weight value. Defaults to 1. This is used for cases where some items should be more common than others. For example, given two loot entries, one with weight 3 and one with weight 1, then there is a 75% chance for the first entry to be chosen, and a 25% chance for the second entry.
-- `quality`: The quality value. Defaults to 0. If this is non-zero, then this value is multiplied by the luck value (set in the [loot context][context]) and added to the weight when rolling the loot table.
-- `conditions`: A list of [loot conditions][lootcondition] to apply to this loot entry. If one condition fails, the entry is treated as if it weren't present.
-- `functions`: A list of [loot functions][lootfunction] to apply to the outputs of this loot entry.
+- `weight`：权重值。默认为 1。用于某些物品应比其他物品更常见的情况。例如，给定两个战利品条目，一个权重为 3，另一个权重为 1，那么第一个条目被选中的几率为 75%，第二个条目为 25%。
+- `quality`：质量值。默认为 0。如果此值非零，则将此值乘以运气值（在[战利品上下文][context]中设置）并在掷战利品表时添加到权重中。
+- `conditions`：应用于此战利品条件的[战利品条件][lootcondition]列表。如果一个条件失败，该条目被视为不存在。
+- `functions`：应用于此战利品条目输出的[战利品函数][lootfunction]列表。
 
-Loot entries are generally split into two groups: singletons (with the common superclass `LootPoolSingletonContainer`) and composites (with the common superclass `CompositeEntryBase`), where composites are made up of multiple singletons. The following singleton types are provided by Minecraft:
+战利品条目通常分为两组：单例（公共超类为 `LootPoolSingletonContainer`）和复合（公共超类为 `CompositeEntryBase`），其中复合条目由多个单例组成。Minecraft 提供了以下单例类型：
 
-- `minecraft:empty`: An empty loot entry, representing no item. Created in code by calling `EmptyLootItem#emptyItem`.
-- `minecraft:item`: A singular loot item entry, dropping the specified item when rolled. Created in code by calling `LootItem#lootTableItem` with the desired item.
-    - Setting stack size, data components, etc. can be done using loot functions.
-- `minecraft:tag`: A tag entry, dropping all items in the specified tag when rolling. Has two variants, depending on the value of the boolean `expand` property. If `expand` is true, a separate entry for each item in the tag is generated, otherwise one entry is used to drop all items. Created by calling `TagEntry#tagContents` (for `expand=false`) or `TagEntry#expandTag` (for `expand=true`), each with an item [tag key][tags] parameter.
-    - For example, if `expand` is true and the tag is `#minecraft:planks`, one entry is generated for each planks type (so 11 entries for the 11 vanilla planks + one entry per modded planks), each with the specified weight, quality and functions; whereas if `expand` is false, one single entry dropping all planks is used.
-- `minecraft:dynamic`: A loot entry referencing a dynamic drop. Dynamic drops are a system to add entries to a loot table that cannot be specified beforehand, instead adding them in code. A dynamic drops entry consists of an id and a `Consumer<ItemStack>` that actually adds the items. To add a dynamic drops entry, specify a `minecraft:dynamic` entry with the desired id and then add a corresponding consumer in the [loot context][context]. Created using `DynamicLoot#dynamicEntry`.
-- `minecraft:loot_table`: A loot entry that rolls another loot table, adding the result of that loot table as a single entry. The other loot table can either be specified by id or be inlined as a whole. Created in code by calling `NestedLootTable#lootTableReference` with a `ResourceLocation` parameter, or `NestedLootTable#inlineLootTable` with a `LootTable` object parameter for an inline loot table.
+- `minecraft:empty`：一个空的战利品条目，表示没有物品。在代码中通过调用 `EmptyLootItem#emptyItem` 创建。
+- `minecraft:item`：一个单一的战利品物品条目，掷出时掉落指定的物品。在代码中通过使用所需物品调用 `LootItem#lootTableItem` 创建。
+    - 可以使用战利品函数设置堆叠大小、数据组件等。
+- `minecraft:tag`：一个标签条目，掷出时掉落指定标签中的所有物品。根据布尔值 `expand` 属性的值，有两种变体。如果 `expand` 为 true，则为标签中的每个物品生成一个单独的条目；否则，使用一个条目来掉落所有物品。通过使用物品[标签键][tags]参数调用 `TagEntry#tagContents`（针对 `expand=false`）或 `TagEntry#expandTag`（针对 `expand=true`）创建。
+    - 例如，如果 `expand` 为 true 且标签是 `#minecraft:planks`，则为每种木板类型生成一个条目（因此对于 11 种原版木板 + 每种模组木板有一个条目），每个条目都有指定的权重、质量和函数；而如果 `expand` 为 false，则使用一个掉落所有木板的单一条目。
+- `minecraft:dynamic`：引用动态掉落的战利品条目。动态掉落是一个系统，用于向战利品表中添加无法预先指定的条目，而是在代码中添加。动态掉落条目由一个 id 和一个实际添加物品的 `Consumer<ItemStack>` 组成。要添加动态掉落条目，请指定一个具有所需 id 的 `minecraft:dynamic` 条目，然后在[战利品上下文][context]中添加相应的消费者。使用 `DynamicLoot#dynamicEntry` 创建。
+- `minecraft:loot_table`：掷出另一个战利品表的战利品条目，将该战利品表的结果作为单个条目添加。另一个战利品表可以通过 id 指定，也可以完全内联。在代码中通过使用 `ResourceLocation` 参数调用 `NestedLootTable#lootTableReference`，或使用 `LootTable` 对象参数调用 `NestedLootTable#inlineLootTable` 以创建内联战利品表。
 
-The following composite types are provided by Minecraft:
+Minecraft 提供了以下复合类型：
 
-- `minecraft:group`: A loot entry containing a list of other loot entries, which are run in order. Created in code by calling `EntryGroup#list`, or by calling `#append` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
-- `minecraft:sequence`: Like `minecraft:group`, but the loot entry stops running as soon as one sub-entry fails, discarding all entries after that. Created in code by calling `SequentialEntry#sequential`, or by calling `#then` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
-- `minecraft:alternatives`: Sort of an opposite to `minecraft:sequence`, but the loot entry stops running as soon as one sub-entry succeeds (instead of as soon as one fails), discarding all entries after that. Created in code by calling `AlternativesEntry#alternatives`, or by calling `#otherwise` on another `LootPoolSingletonContainer.Builder`, each with other loot entry builders.
+- `minecraft:group`：包含其他战利品条目列表的战利品条目，按顺序运行。在代码中通过调用 `EntryGroup#list` 创建，或通过在其他 `LootPoolSingletonContainer.Builder` 上调用 `#append` 创建，每个都带有其他战利品条目构建器。
+- `minecraft:sequence`：类似于 `minecraft:group`，但战利品条目在一个子条目失败时停止运行，丢弃该条目之后的所有条目。在代码中通过调用 `SequentialEntry#sequential` 创建，或通过在其他 `LootPoolSingletonContainer.Builder` 上调用 `#then` 创建，每个都带有其他战利品条目构建器。
+- `minecraft:alternatives`：类似于 `minecraft:sequence` 的相反情况，但战利品条目在一个子条目成功时（而不是失败时）停止运行，丢弃该条目之后的所有条目。在代码中通过调用 `AlternativesEntry#alternatives` 创建，或通过在其他 `LootPoolSingletonContainer.Builder` 上调用 `#otherwise` 创建，每个都带有其他战利品条目构建器。
 
-For modders, it is also possible to define [custom loot entry types][customentry].
+对于模组开发者，也可以定义[自定义战利品条目类型][customentry]。
 
-## Loot Pool
+## 战利品池
 
-A loot pool is, in essence, a list of loot entries. Loot tables can contain multiple loot pools, each loot pool will be rolled independently of the others.
+战利品池本质上是战利品条目的列表。战利品表可以包含多个战利品池，每个战利品池将独立于其他池掷出。
 
-Loot pools may contain the following contents:
+战利品池可能包含以下内容：
 
-- `entries`: A list of loot entries.
-- `conditions`: A list of [loot conditions][lootcondition] to apply to this loot pool. If one condition fails, none of the loot pool's entries will be rolled.
-- `functions`: A list of [loot functions][lootfunction] to apply to all loot entry outputs of this loot pool.
-- `rolls` and `bonus_rolls`: Two number providers (read on) that together determine the amount of times this loot pool will be rolled. The formula is rolls + bonus_rolls * luck, where the luck value is set in the [loot parameters][parameters].
-- `name`: A name for the loot pool. NeoForge-added. This can be used by [GLMs][glm]. If unspecified, this is the hash code of the loot pool, prefixed by `custom#`.
+- `entries`：战利品条目列表。
+- `conditions`：应用于此战利品池的[战利品条件][lootcondition]列表。如果一个条件失败，战利品池的所有条目都不会被掷出。
+- `functions`：应用于此战利品池所有战利品条目输出的[战利品函数][lootfunction]列表。
+- `rolls` 和 `bonus_rolls`：两个数字提供器（继续阅读）共同决定此战利品池将被掷出的次数。公式是 rolls + bonus_rolls * luck，其中运气值在[战利品参数][parameters]中设置。
+- `name`：战利品池的名称。NeoForge 添加。可被 [GLMs][glm] 使用。如果未指定，则是战利品池的哈希码，前缀为 `custom#`。
 
-## Number Provider
+## 数字提供器
 
-Number providers are a way to get (pseudo-)randomized numbers in a datapack context. Primarily used by loot tables, they are also used in other contexts, for example in worldgen. Vanilla provides the following six number providers:
+数字提供器是一种在数据包上下文中获取（伪）随机数的方式。主要由战利品表使用，它们也用于其他上下文，例如世界生成。原版提供了以下六种数字提供器：
 
-- `minecraft:constant`: A constant float value, rounding to integer where needed. Created through `ConstantValue#exactly`.
-- `minecraft:uniform`: Uniformly-distributed random integer or float values, with min and max values set. All values between min and max have the same chance to appear. Created through `UniformGenerator#between`.
-- `minecraft:binomial`: Binomially-distributed random integer values, with n and p values set. See [Binomial Distribution][binomial] for more information on what these values mean. Created through `BinomialDistributionGenerator#binomial`.
-- `minecraft:score`: Given an entity target, a score name and (optionally) a scale value, retrieves the given scoreboard value for the entity target, multiplying it with the given scale value (if available). Created through `ScoreboardValue#fromScoreboard`.
-- `minecraft:storage`: A value from the command storage at a given nbt path. Created through `new StorageValue`.
-- `minecraft:enchantment_level`: A provider of values for each enchantment level. Created through `EnchantmentLevelProvider#forEnchantmentLevel`, providing a `LevelBasedValue`. Valid `LevelBasedValue`s are:
-    - Simply a constant value, without a specified type. Created through `LevelBasedValue#constant`.
-    - `minecraft:linear`: A linearly-increasing value per enchantment level, plus an optional constant base value. Created through `LevelBasedValue#perLevel`.
-    - `minecraft:levels_squared`: Squares the enchantment value, and then adds an optional base value to it. Created through `new LevelBasedValue.LevelsSquared`.
-    - `minecraft:fraction`: Accepts two other `LevelBasedValue`s, using them to create a fraction. Created through `new LevelBasedValue.Fraction`.
-    - `minecraft:clamped`: Accepts another `LevelBasedValue`, alongside min and max values. Calculates the value using the other `LevelBasedValue` and clamps the result. Created through `new LevelBasedValue.Clamped`.
-    - `minecraft:lookup`: Accepts a `List<Float>` and a fallback `LevelBasedValue`. Looks up the value to use in the list (level 1 is the first element in the list, level 2 is the second element, etc.), and uses the fallback value if the value for a level is missing. Created through `LevelBasedValue#lookup`.
+- `minecraft:constant`：一个常量浮点值，在需要时舍入为整数。通过 `ConstantValue#exactly` 创建。
+- `minecraft:uniform`：均匀分布的随机整数或浮点值，设置了最小值和最大值。最小值和最大值之间的所有值出现的几率相同。通过 `UniformGenerator#between` 创建。
+- `minecraft:binomial`：二项式分布的随机整数值，设置了 n 和 p 值。有关这些值的含义的更多信息，请参见[二项式分布][binomial]。通过 `BinomialDistributionGenerator#binomial` 创建。
+- `minecraft:score`：给定一个实体目标、一个计分板名称和（可选）一个比例值，检索实体目标的给定计分板值，将其乘以给定的比例值（如果可用）。通过 `ScoreboardValue#fromScoreboard` 创建。
+- `minecraft:storage`：来自给定 NBT 路径的命令存储中的值。通过 `new StorageValue` 创建。
+- `minecraft:enchantment_level`：每个附魔等级的值的提供器。通过提供一个 `LevelBasedValue` 的 `EnchantmentLevelProvider#forEnchantmentLevel` 创建。有效的 `LevelBasedValue` 有：
+    - 只是一个常量值，没有指定类型。通过 `LevelBasedValue#constant` 创建。
+    - `minecraft:linear`：每附魔等级线性增加的值，加上一个可选的常量基础值。通过 `LevelBasedValue#perLevel` 创建。
+    - `minecraft:levels_squared`：对附魔值进行平方，然后向其添加一个可选的基础值。通过 `new LevelBasedValue.LevelsSquared` 创建。
+    - `minecraft:fraction`：接受另外两个 `LevelBasedValue`，使用它们创建一个分数。通过 `new LevelBasedValue.Fraction` 创建。
+    - `minecraft:clamped`：接受另一个 `LevelBasedValue`，以及最小值和最大值。使用另一个 `LevelBasedValue` 计算值并钳制结果。通过 `new LevelBasedValue.Clamped` 创建。
+    - `minecraft:lookup`：接受一个 `List<Float>` 和一个回退 `LevelBasedValue`。在列表中查找要使用的值（等级 1 是列表中的第一个元素，等级 2 是第二个元素，等等），如果某个等级的值缺失，则使用回退值。通过 `LevelBasedValue#lookup` 创建。
 
-Modders can also register [custom number providers][customnumber] and [custom level-based values][customlevelbased] if needed.
+如果需要，模组开发者还可以注册[自定义数字提供器][customnumber]和[自定义基于等级的值][customlevelbased]。
 
-## Loot Parameters
+## 战利品参数
 
-A loot parameter, known internally as a `ContextKey<T>`, is a parameter provided to a loot table when rolled, where `T` is the type of the provided parameter, for example `BlockPos` or `Entity`. They can be used by [loot conditions][lootcondition] and [loot functions][lootfunction]. For example, the `minecraft:killed_by_player` loot condition checks for the presence of the `minecraft:player` parameter.
+战利品参数，内部称为 `ContextKey<T>`，是掷出战利品表时提供的参数，其中 `T` 是所提供参数的类型，例如 `BlockPos` 或 `Entity`。它们可以被[战利品条件][lootcondition]和[战利品函数][lootfunction]使用。例如，`minecraft:killed_by_player` 战利品条件检查是否存在 `minecraft:player` 参数。
 
-Minecraft provides the following loot parameters:
+Minecraft 提供了以下战利品参数：
 
-- `minecraft:this_entity`: An entity associated with the loot table, typically the killed entity. Access via `LootContextParams.THIS_ENTITY`.
-- `minecraft:interacting_entity`: An entity that is interacting with the loot table, e.g. a player mining a block. Access via `LootContextParams.INTERACTING_ENTITY`.
-- `minecraft:target_entity`: An entity associated with the loot table, typically the target of some interaction. Access via `LootContextParams.TARGET_ENTITY`.
-- `minecraft:last_damage_player`: A player associated with the loot table, typically the player that last attacked the killed entity, even if the player kill was indirect (for example: the player tapped the entity, and it was then killed by spikes). Used e.g. for player-kill-only drops. Access via `LootContextParams.LAST_DAMAGE_PLAYER`.
-- `minecraft:damage_source`: A [damage source][damagesource] associated with the loot table, typically the damage source that killed the entity. Access via `LootContextParams.DAMAGE_SOURCE`.
-- `minecraft:attacking_entity`: An attacking entity associated with the loot table, typically the killer of the entity. Access via `LootContextParams.ATTACKING_ENTITY`.
-- `minecraft:direct_attacking_entity`: A direct attacking entity associated with the loot table. For example, if the attacking entity were a skeleton, the direct attacking entity would be the arrow. Access via `LootContextParams.DIRECT_ATTACKING_ENTITY`.
-- `minecraft:origin`: A location associated with the loot table, e.g. the location of a loot chest. Access via `LootContextParams.ORIGIN`.
-- `minecraft:block_state`: A block state associated with the loot table, e.g. the broken block state. Access via `LootContextParams.BLOCK_STATE`.
-- `minecraft:block_entity`: A block entity associated with the loot table, e.g. the block entity associated with the broken block. Used e.g. by shulker boxes to save their inventory to the dropped item. Access via `LootContextParams.BLOCK_ENTITY`.
-- `minecraft:tool`: An item stack associated with the loot table, e.g. the item used to break a block. This is not necessarily a tool. Access via `LootContextParams.TOOL`.
-- `minecraft:explosion_radius`: An explosion radius in the current context. Used primarily to apply explosion decay to drops. Access via `LootContextParams.EXPLOSION_RADIUS`.
-- `minecraft:enchantment_level`: An enchantment level, used by enchantment logic. Access via `LootContextParams.ENCHANTMENT_LEVEL`.
-- `minecraft:enchantment_active`: Whether the used item has an enchantment or not, used e.g. by silk touch checks. Access via `LootContextParams.ENCHANTMENT_ACTIVE`.
+- `minecraft:this_entity`：与战利品表关联的实体，通常是被杀死的实体。通过 `LootContextParams.THIS_ENTITY` 访问。
+- `minecraft:interacting_entity`：正在与战利品表交互的实体，例如挖掘方块的玩家。通过 `LootContextParams.INTERACTING_ENTITY` 访问。
+- `minecraft:target_entity`：与战利品表关联的实体，通常是某个交互的目标。通过 `LootContextParams.TARGET_ENTITY` 访问。
+- `minecraft:last_damage_player`：与战利品表关联的玩家，通常是最后攻击被杀死实体的玩家，即使玩家击杀是间接的（例如：玩家轻触了实体，然后它被尖刺杀死）。用于例如仅限玩家击杀的掉落物。通过 `LootContextParams.LAST_DAMAGE_PLAYER` 访问。
+- `minecraft:damage_source`：与战利品表关联的[伤害源][damagesource]，通常是杀死实体的伤害源。通过 `LootContextParams.DAMAGE_SOURCE` 访问。
+- `minecraft:attacking_entity`：与战利品表关联的攻击实体，通常是实体的杀手。通过 `LootContextParams.ATTACKING_ENTITY` 访问。
+- `minecraft:direct_attacking_entity`：与战利品表关联的直接攻击实体。例如，如果攻击实体是骷髅，那么直接攻击实体就是箭。通过 `LootContextParams.DIRECT_ATTACKING_ENTITY` 访问。
+- `minecraft:origin`：与战利品表关联的位置，例如战利品箱的位置。通过 `LootContextParams.ORIGIN` 访问。
+- `minecraft:block_state`：与战利品表关联的方块状态，例如被破坏的方块状态。通过 `LootContextParams.BLOCK_STATE` 访问。
+- `minecraft:block_entity`：与战利品表关联的方块实体，例如与被破坏方块关联的方块实体。例如由潜影盒使用，将其库存保存到掉落的物品中。通过 `LootContextParams.BLOCK_ENTITY` 访问。
+- `minecraft:tool`：与战利品表关联的物品堆，例如用于破坏方块的物品。这不一定是工具。通过 `LootContextParams.TOOL` 访问。
+- `minecraft:explosion_radius`：当前上下文中的爆炸半径。主要用于将爆炸衰减应用于掉落物。通过 `LootContextParams.EXPLOSION_RADIUS` 访问。
+- `minecraft:enchantment_level`：附魔等级，用于附魔逻辑。通过 `LootContextParams.ENCHANTMENT_LEVEL` 访问。
+- `minecraft:enchantment_active`：所用物品是否有附魔，例如用于精准采集检查。通过 `LootContextParams.ENCHANTMENT_ACTIVE` 访问。
 
-Custom loot parameters can be created by calling `new ContextKey<T>` with the desired id. Since they are merely resource location wrappers, they do not need to be registered.
+可以通过使用所需的 id 调用 `new ContextKey<T>` 来创建自定义战利品参数。由于它们仅仅是资源位置的包装器，因此不需要注册。
 
-### Entity Targets
+### 实体目标
 
-Entity targets are a type used in loot conditions and functions, represented by the `LootContext.EntityTarget` enum in code. They are used to specify the entity loot parameter to query in a condition or function context. Valid values are:
+实体目标是战利品条件和函数中使用的一种类型，在代码中由 `LootContext.EntityTarget` 枚举表示。它们用于指定在条件或函数上下文中要查询的实体战利品参数。有效值有：
 
-- `"this"` or `LootContext.EntityTarget.THIS`: Represents the `"minecraft:this_entity"` parameter.
-- `"attacker"` or `LootContext.EntityTarget.ATTACKER`: Represents the `"minecraft:attacking_entity"` parameter.
-- `"direct_attacker"` or `LootContext.EntityTarget.DIRECT_ATTACKER`: Represents the `"minecraft:direct_attacking_entity"` parameter.
-- `"attacking_player"` or `LootContext.EntityTarget.ATTACKING_PLAYER`: Represents the `"minecraft:last_damage_player"` parameter.
-- `"target_entity"` or `LootContext.EntityTarget.TARGET_ENTITY`: Represents the `"minecraft:target_entity"` parameter.
-- `"interacting_entity"` or `LootContext.EntityTarget.INTERACTING_ENTITY`: Represents the `"minecraft:interacting_entity"` parameter.
+- `"this"` 或 `LootContext.EntityTarget.THIS`：代表 `"minecraft:this_entity"` 参数。
+- `"attacker"` 或 `LootContext.EntityTarget.ATTACKER`：代表 `"minecraft:attacking_entity"` 参数。
+- `"direct_attacker"` 或 `LootContext.EntityTarget.DIRECT_ATTACKER`：代表 `"minecraft:direct_attacking_entity"` 参数。
+- `"attacking_player"` 或 `LootContext.EntityTarget.ATTACKING_PLAYER`：代表 `"minecraft:last_damage_player"` 参数。
+- `"target_entity"` 或 `LootContext.EntityTarget.TARGET_ENTITY`：代表 `"minecraft:target_entity"` 参数。
+- `"interacting_entity"` 或 `LootContext.EntityTarget.INTERACTING_ENTITY`：代表 `"minecraft:interacting_entity"` 参数。
 
-For example, the `minecraft:entity_properties` loot condition accepts an entity target to allow all four loot parameters to be checked, if that is what you (as the loot table author) need.
+例如，`minecraft:entity_properties` 战利品条件接受一个实体目标，以允许检查所有四个战利品参数（如果你（作为战利品表作者）需要的话）。
 
-### Loot Parameter Sets
+### 战利品参数集
 
-Loot parameter sets, also known as loot table types and known as `ContextKeySet`s in code, are a collection of required and optional loot parameters. Despite their name, they are not `Set`s (not even `Collection`s). Rather, they are a wrapper around two `Set<ContextKey<?>>`s, one holding the required parameters (`#required`) and one holding the optional parameters (`#allowed`). They are used to validate that users of loot parameters only use the parameters that can be expected to be available, and to verify that the required parameters are present when rolling a table. Besides that, they are also used in advancement and enchantment logic.
+战利品参数集，也称为战利品表类型，在代码中称为 `ContextKeySet`s，是必需和可选战利品参数的集合。尽管名称如此，它们不是 `Set`s（甚至不是 `Collection`s）。相反，它们是围绕两个 `Set<ContextKey<?>>` 的包装器，一个保存必需参数（`#required`），一个保存可选参数（`#allowed`）。它们用于验证战利品参数的用户只使用预期可用的参数，并在掷表时验证必需参数是否存在。除此之外，它们还用于进度和附魔逻辑。
 
-Vanilla provides the following loot parameter sets (required parameters are **bold**, optional parameters are _in italics_; the in-code names are constants in `LootContextParamSets`):
+原版提供以下战利品参数集（必需参数为**粗体**，可选参数为*斜体*；代码内名称是 `LootContextParamSets` 中的常量）：
 
-| ID                               | In-code name           | Specified Loot Parameters                                                                                                                                                                                                                                                                                            | Usage                                                     |
+| ID                               | 代码内名称           | 指定的战利品参数                                                                                                                                                                                                                                                                                            | 用途                                                     |
 |----------------------------------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| `minecraft:empty`                | `EMPTY`                | n/a                                                                                                                                                                                                                                                                                                                  | Fallback purposes.                                        |
-| `minecraft:generic`              | `ALL_PARAMS`           | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:block_entity`**, **`minecraft:explosion_radius`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, **`minecraft:attacking_entity`**, **`minecraft:direct_attacking_entity`**, **`minecraft:last_damage_player`** | Validation.                                               |
-| `minecraft:command`              | `COMMAND`              | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Commands.                                                 |
-| `minecraft:selector`             | `SELECTOR`             | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | Entity selectors in commands.                             |
-| `minecraft:block`                | `BLOCK`                | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:explosion_radius`_, _`minecraft:this_entity`_                                                                                                                                                     | Block breaking.                                           |
-| `minecraft:block_use`            | `BLOCK_USE`            | **`minecraft:origin`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                     | No vanilla uses.                                          |
-| `minecraft:block_interact`       | `BLOCK_INTERACT`       | **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:interacting_entity`_, _`minecraft:tool`_                                                                                                                                                                 | Block interactions.                                         |
-| `minecraft:hit_block`            | `HIT_BLOCK`            | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                  | The channeling enchantment.                               |
-| `minecraft:chest`                | `CHEST`                | **`minecraft:origin`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                                                    | Loot chests and similar containers, loot chest minecarts. |
-| `minecraft:archaeology`          | `ARCHAEOLOGY`          | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:tool`**                                                                                                                                                                                                                                                                    | Archaeology.                                              |
-| `minecraft:vault`                | `VAULT`                | **`minecraft:origin`**, _`minecraft:this_entity`_, _`minecraft:tool`_                                                                                                                                                                                                                                                                    | Trial chamber vault rewards.                              |
-| `minecraft:entity`               | `ENTITY`               | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_, _`minecraft:last_damage_player`_                                                                                                                          | Entity kills.                                             |
-| `minecraft:entity_interact`      | `ENTITY_INTERACT`      | **`minecraft:target_entity`**, **`minecraft:tool`**, _`minecraft:interacting_entity`_ | Entity interactions.                                            |
-| `minecraft:shearing`             | `SHEARING`             | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:tool`**                                                                                                                                                                                                                                                                    | Shearing entities, e.g. sheep.                            |
-| `minecraft:equipment`            | `EQUIPMENT`            | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Entity equipment for e.g. zombies.                        |
-| `minecraft:gift`                 | `GIFT`                 | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Raid hero gifts.                                          |
-| `minecraft:barter`               | `PIGLIN_BARTER`        | **`minecraft:this_entity`**                                                                                                                                                                                                                                                                                          | Piglin bartering.                                         |
-| `minecraft:fishing`              | `FISHING`              | **`minecraft:origin`**, **`minecraft:tool`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                              | Fishing.                                                  |
-| `minecraft:enchanted_item`       | `ENCHANTED_ITEM`       | **`minecraft:tool`**, **`minecraft:enchantment_level`**                                                                                                                                                                                                                                                              | Several enchantments.                                     |
-| `minecraft:enchanted_entity`     | `ENCHANTED_ENTITY`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**                                                                                                                                                                                                                               | Several enchantments.                                     |
-| `minecraft:enchanted_damage`     | `ENCHANTED_DAMAGE`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_                                                                                                                         | Damage and protection enchantments.                       |
-| `minecraft:enchanted_location`   | `ENCHANTED_LOCATION`   | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:enchantment_active`**, **`minecraft:this_entity`**                                                                                                                                                                                           | Frost walker and soul speed enchantments.                 |
-| `minecraft:advancement_entity`   | `ADVANCEMENT_ENTITY`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | Several [advancement criteria][advancement].              |
-| `minecraft:advancement_location` | `ADVANCEMENT_LOCATION` | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                               | Several [advancement triggers][advancement].              |
-| `minecraft:advancement_reward`   | `ADVANCEMENT_REWARD`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | [Advancement rewards][advancement].                       |
+| `minecraft:empty`                | `EMPTY`                | 不适用                                                                                                                                                                                                                                                                                                                  | 回退目的。                                        |
+| `minecraft:generic`              | `ALL_PARAMS`           | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:block_entity`**, **`minecraft:explosion_radius`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, **`minecraft:attacking_entity`**, **`minecraft:direct_attacking_entity`**, **`minecraft:last_damage_player`** | 验证。                                               |
+| `minecraft:command`              | `COMMAND`              | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | 命令。                                                 |
+| `minecraft:selector`             | `SELECTOR`             | **`minecraft:origin`**, _`minecraft:this_entity`_                                                                                                                                                                                                                                                                    | 命令中的实体选择器。                             |
+| `minecraft:block`                | `BLOCK`                | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:explosion_radius`_, _`minecraft:this_entity`_                                                                                                                                                     | 方块破坏。                                           |
+| `minecraft:block_use`            | `BLOCK_USE`            | **`minecraft:origin`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                     | 无原版用途。                                          |
+| `minecraft:block_interact`       | `BLOCK_INTERACT`       | **`minecraft:block_state`**, _`minecraft:block_entity`_, _`minecraft:interacting_entity`_, _`minecraft:tool`_                                                                                                                                                                 | 方块交互。                                         |
+| `minecraft:hit_block`            | `HIT_BLOCK`            | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                  | 引雷附魔。                               |
+| `minecraft:chest`                | `CHEST`                | **`minecraft:origin`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                                                    | 战利品箱和类似容器，战利品箱矿车。 |
+| `minecraft:archaeology`          | `ARCHAEOLOGY`          | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:tool`**                                                                                                                                                                                                                                                                    | 考古。                                              |
+| `minecraft:vault`                | `VAULT`                | **`minecraft:origin`**, _`minecraft:this_entity`_, _`minecraft:tool`_                                                                                                                                                                                                                                                                    | 试炼密室保险库奖励。                              |
+| `minecraft:entity`               | `ENTITY`               | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_, _`minecraft:last_damage_player`_                                                                                                                          | 实体击杀。                                             |
+| `minecraft:entity_interact`      | `ENTITY_INTERACT`      | **`minecraft:target_entity`**, **`minecraft:tool`**, _`minecraft:interacting_entity`_ | 实体交互。                                            |
+| `minecraft:shearing`             | `SHEARING`             | **`minecraft:origin`**, **`minecraft:this_entity`**, **`minecraft:tool`**                                                                                                                                                                                                                                                                    | 剪切实体，例如绵羊。                            |
+| `minecraft:equipment`            | `EQUIPMENT`            | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | 实体装备，例如僵尸。                        |
+| `minecraft:gift`                 | `GIFT`                 | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | 袭击英雄礼物。                                          |
+| `minecraft:barter`               | `PIGLIN_BARTER`        | **`minecraft:this_entity`**                                                                                                                                                                                                                                                                                          | 猪灵以物易物。                                         |
+| `minecraft:fishing`              | `FISHING`              | **`minecraft:origin`**, **`minecraft:tool`**, _`minecraft:this_entity`_, _`minecraft:attacking_entity`_                                                                                                                                                                                                              | 钓鱼。                                                  |
+| `minecraft:enchanted_item`       | `ENCHANTED_ITEM`       | **`minecraft:tool`**, **`minecraft:enchantment_level`**                                                                                                                                                                                                                                                              | 几个附魔。                                     |
+| `minecraft:enchanted_entity`     | `ENCHANTED_ENTITY`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**                                                                                                                                                                                                                               | 几个附魔。                                     |
+| `minecraft:enchanted_damage`     | `ENCHANTED_DAMAGE`     | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:this_entity`**, **`minecraft:damage_source`**, _`minecraft:attacking_entity`_, _`minecraft:direct_attacking_entity`_                                                                                                                         | 伤害和保护附魔。                       |
+| `minecraft:enchanted_location`   | `ENCHANTED_LOCATION`   | **`minecraft:origin`**, **`minecraft:enchantment_level`**, **`minecraft:enchantment_active`**, **`minecraft:this_entity`**                                                                                                                                                                                           | 冰霜行者和灵魂疾行附魔。                 |
+| `minecraft:advancement_entity`   | `ADVANCEMENT_ENTITY`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | 几个[进度条件][advancement]。              |
+| `minecraft:advancement_location` | `ADVANCEMENT_LOCATION` | **`minecraft:origin`**, **`minecraft:tool`**, **`minecraft:block_state`**, **`minecraft:this_entity`**                                                                                                                                                                                                               | 几个[进度触发器][advancement]。              |
+| `minecraft:advancement_reward`   | `ADVANCEMENT_REWARD`   | **`minecraft:origin`**, **`minecraft:this_entity`**                                                                                                                                                                                                                                                                  | [进度奖励][advancement]。                       |
 
-### Loot Context
+### 战利品上下文
 
-The loot context is an object containing situational information for rolling loot tables. The information includes:
+战利品上下文是一个包含掷战利品表时情境信息的对象。信息包括：
 
-- The `ServerLevel` the loot table is rolled in. Get via `#getLevel`.
-- The `RandomSource` used to roll the loot table. Get via `#getRandom`.
-- The loot parameters. Check presence using `#hasParameter`, and get single parameters using `#getParameter`.
-- The luck value, used for calculating bonus rolls and quality values. Usually populated via the entity's luck attribute. Get via `#getLuck`.
-- The dynamic drops consumers. See [above][entry] for more information. Set via `#addDynamicDrops`. No getter available.
+- 掷战利品表所在的 `ServerLevel`。通过 `#getLevel` 获取。
+- 用于掷战利品表的 `RandomSource`。通过 `#getRandom` 获取。
+- 战利品参数。使用 `#hasParameter` 检查存在性，并使用 `#getParameter` 获取单个参数。
+- 运气值，用于计算奖励掷骰和质量值。通常通过实体的运气属性填充。通过 `#getLuck` 获取。
+- 动态掉落消费者。更多信息见[上文][entry]。通过 `#addDynamicDrops` 设置。没有获取器可用。
 
-## Loot Table
+## 战利品表
 
-Combining all the previous elements, we finally get a loot table. Loot table JSONs can specify the following values:
+结合所有前面的元素，我们最终得到一个战利品表。战利品表 JSON 可以指定以下值：
 
-- `pools`: A list of loot pools.
-- `neoforge:conditions`: A list of [data load conditions][conditions]. **Warning: These are data load conditions, not [loot conditions][lootcondition]!**
-- `functions`: A list of [loot functions][lootfunction] to apply to all loot entry outputs of this loot table.
-- `type`: A loot parameter set, used to validate proper usage of loot parameters. Optional; if absent, validation will be skipped.
-- `random_sequence`: A random sequence for this loot table, in the form of a resource location. Random sequences are provided by the `Level` and used for consistent loot table rolls under identical conditions. This commonly uses the loot table's location.
+- `pools`：战利品池列表。
+- `neoforge:conditions`：[数据加载条件][conditions]列表。**警告：这些是数据加载条件，不是[战利品条件][lootcondition]！**
+- `functions`：应用于此战利品表所有战利品条目输出的[战利品函数][lootfunction]列表。
+- `type`：一个战利品参数集，用于验证战利品参数的正确使用。可选；如果不存在，将跳过验证。
+- `random_sequence`：此战利品表的随机序列，以资源位置的形式。随机序列由 `Level` 提供，用于在相同条件下进行一致的战利品表掷骰。这通常使用战利品表的位置。
 
-An example loot table could have the following format:
+一个示例战利品表可以具有以下格式：
 
 ```json5
 {
-    "type": "chest", // loot parameter set
+    "type": "chest", // 战利品参数集
     "neoforge:conditions": [
-        // data load conditions
+        // 数据加载条件
     ],
     "functions": [
-        // table-wide loot functions
+        // 表级战利品函数
     ],
-    "pools": [ // list of loot pools
+    "pools": [ // 战利品池列表
         {
-            "rolls": 1, // amount of rolls of the loot table, using 5 here will yield 5 results from the pool
-            "bonus_rolls": 0.5, // amount of bonus rolls
+            "rolls": 1, // 战利品表的掷骰次数，此处使用 5 将从池中产生 5 个结果
+            "bonus_rolls": 0.5, // 奖励掷骰次数
             "name": "my_pool",
             "conditions": [
-                // pool-wide loot conditions
+                // 池级战利品条件
             ],
             "functions": [
-                // pool-wide loot functions
+                // 池级战利品函数
             ],
-            "entries": [ // list of loot table entries
+            "entries": [ // 战利品表条目列表
                 {
-                    "type": "minecraft:item", // loot entry type
-                    "name": "minecraft:dirt", // type-specific properties, for example the name of the item
-                    "weight": 3, // weight of an entry
-                    "quality": 1, // quality of an entry
+                    "type": "minecraft:item", // 战利品条目类型
+                    "name": "minecraft:dirt", // 类型特定属性，例如物品的名称
+                    "weight": 3, // 条目的权重
+                    "quality": 1, // 条目的质量
                     "conditions": [
-                        // entry-wide loot conditions
+                        // 条目级战利品条件
                     ],
                     "functions": [
-                        // entry-wide loot functions
+                        // 条目级战利品函数
                     ]
                 }
             ]
@@ -207,74 +207,74 @@ An example loot table could have the following format:
 }
 ```
 
-## Rolling a Loot Table
+## 掷出战利品表
 
-To roll a loot table, we need two things: the loot table itself, and a loot context.
+要掷出战利品表，我们需要两样东西：战利品表本身和战利品上下文。
 
-Let's start with getting the loot table itself. We can obtain a loot table using `level.getServer().reloadableRegistries().getLootTable(lootTableId)`. As the loot data is only available through the server, this logic must run on a [logical server][sides], not a logical client.
+让我们从获取战利品表本身开始。我们可以使用 `level.getServer().reloadableRegistries().getLootTable(lootTableId)` 获取战利品表。由于战利品数据仅通过服务器可用，此逻辑必须在[逻辑服务器][sides]上运行，而不是逻辑客户端。
 
 :::tip
-Minecraft's built-in loot table IDs can be found in the `BuiltInLootTables` class. Block loot tables can be obtained through `BlockBehaviour#getLootTable`, and entity loot tables can be obtained through `EntityType#getDefaultLootTable` or `Entity#getLootTable`.
+Minecraft 的内置战利品表 ID 可以在 `BuiltInLootTables` 类中找到。方块战利品表可以通过 `BlockBehaviour#getLootTable` 获取，实体战利品表可以通过 `EntityType#getDefaultLootTable` 或 `Entity#getLootTable` 获取。
 :::
 
-Now that we have a loot table, let's build our parameter set. We begin by creating an instance of `LootParams.Builder`:
+现在我们有了战利品表，让我们构建我们的参数集。我们首先创建一个 `LootParams.Builder` 实例：
 
 ```java
-// Make sure that you are on a server, otherwise the cast will fail.
+// 确保你在服务器上，否则转换将失败。
 LootParams.Builder builder = new LootParams.Builder((ServerLevel) level);
 ```
 
-We can then add loot context parameters, like so:
+然后我们可以添加战利品上下文参数，像这样：
 
 ```java
-// Use whatever context parameters and values you need. Vanilla parameters can be found in LootContextParams.
+// 使用你需要的任何上下文参数和值。原版参数可以在 LootContextParams 中找到。
 builder.withParameter(LootContextParams.ORIGIN, position);
-// This variant can accept null as the value, in which case an existing value for that parameter will be removed.
+// 此变体可以接受 null 作为值，在这种情况下，将删除该参数的现有值。
 builder.withOptionalParameter(LootContextParams.ORIGIN, null);
-// Add a dynamic drop.
+// 添加动态掉落。
 builder.withDynamicDrop(ResourceLocation.fromNamespaceAndPath("examplemod", "example_dynamic_drop"), stackAcceptor -> {
-    // some logic here
+    // 一些逻辑在这里
 });
-// Set our luck value. Assumes that a player is available. Contexts without a player should use 0 here.
+// 设置我们的运气值。假设玩家可用。没有玩家的上下文应在此处使用 0。
 builder.withLuck(player.getLuck());
 ```
 
-Finally, we can create the `LootParams` from the builder and use them to roll the loot table:
+最后，我们可以从构建器创建 `LootParams`，并使用它们掷出战利品表：
 
 ```java
-// Specify a loot context param set here if you want.
+// 如果需要，在此指定战利品上下文参数集。
 LootParams params = builder.create(LootContextParamSets.EMPTY);
-// Get the loot table.
+// 获取战利品表。
 LootTable table = level.getServer().reloadableRegistries().getLootTable(location);
-// Actually roll the loot table.
+// 实际掷出战利品表。
 List<ItemStack> list = table.getRandomItems(params);
-// Use this instead if you are rolling the loot table for container contents, e.g. loot chests.
-// This method takes care of properly splitting the loot items across the container.
+// 如果你是为容器内容（例如战利品箱）掷战利品表，请改用此方法。
+// 此方法负责将战利品物品正确分割到容器中。
 List<ItemStack> containerList = table.fill(container, params, someSeed);
 ```
 
 :::danger
-`LootTable` additionally exposes a method named `#getRandomItemsRaw`. Unlike the various `#getRandomItems` variants, `#getRandomItemsRaw` method will not apply [global loot modifiers][glm]. Use this method only if you know what you are doing.
+`LootTable` 还公开了一个名为 `#getRandomItemsRaw` 的方法。与各种 `#getRandomItems` 变体不同，`#getRandomItemsRaw` 方法不会应用[全局战利品修改器][glm]。仅在你清楚你在做什么的情况下使用此方法。
 :::
 
-## Datagen
+## 数据生成
 
-Loot tables can be [datagenned][datagen] by registering a `LootTableProvider` and providing a list of `LootTableSubProvider` in the constructor:
+可以通过注册一个 `LootTableProvider` 并在构造函数中提供 `LootTableSubProvider` 列表来[数据生成][datagen]战利品表：
 
 ```java
-@SubscribeEvent // on the mod event bus
+@SubscribeEvent // 在模组事件总线上
 public static void onGatherData(GatherDataEvent.Client event) {
-    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
+    // 如果添加数据包对象，请先调用 event.createDatapackRegistryObjects(...)
 
     event.createProvider((output, lookupProvider) -> new LootTableProvider(
         output,
-        // A set of required table resource locations. These are later verified to be present.
-        // It is generally not recommended for mods to validate existence,
-        // therefore we pass in an empty set.
+        // 必需表资源位置的集合。这些随后会被验证是否存在。
+        // 通常不建议模组验证存在性，
+        // 因此我们传入一个空集合。
         Set.of(),
-        // A list of sub provider entries. See below for what values to use here.
+        // 子提供器条目列表。有关此处使用什么值，请参见下文。
         List.of(...),
-        // The registry access
+        // 注册表访问器
         lookupProvider
     ));
 }
@@ -282,32 +282,32 @@ public static void onGatherData(GatherDataEvent.Client event) {
 
 ### `LootTableSubProvider`s
 
-`LootTableSubProvider`s are where the actual generation happens. To get started, we implement `LootTableSubProvider` and override `#generate`:
+`LootTableSubProvider`s 是实际生成发生的地方。首先，我们实现 `LootTableSubProvider` 并重写 `#generate`：
 
 ```java
 public class MyLootTableSubProvider implements LootTableSubProvider {
-    // The parameter is provided by the lambda (see below). It can be stored and used to lookup other registry entries.
+    // 参数由 lambda 提供（见下文）。它可以存储并用于查找其他注册表条目。
     public MyLootTableSubProvider(HolderLookup.Provider lookupProvider) {
-        // Store the lookupProvider in a field
+        // 将 lookupProvider 存储在字段中
     }
 
     @Override
     public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
-        // LootTable.lootTable() returns a loot table builder we can add loot tables to.
+        // LootTable.lootTable() 返回一个我们可以添加战利品表的战利品表构建器。
         consumer.accept(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_loot_table"), LootTable.lootTable()
-                // Add a loot table-level loot function. This example uses a number provider (see below).
+                // 添加战利品表级战利品函数。此示例使用数字提供器（见下文）。
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(5)))
-                // Add a loot pool.
+                // 添加战利品池。
                 .withPool(LootPool.lootPool()
-                        // Add a loot pool-level function, similar to above.
+                        // 添加战利品池级函数，类似于上面。
                         .apply(...)
-                        // Add a loot pool-level condition. This example only rolls the pool if it is raining.
+                        // 添加战利品池级条件。此示例仅在雨天掷池。
                         .when(WeatherCheck.weather().setRaining(true))
-                        // Set the amount of rolls and bonus rolls, respectively.
-                        // Both of these methods utilize a number provider.
+                        // 分别设置掷骰次数和奖励掷骰次数。
+                        // 这两种方法都利用数字提供器。
                         .setRolls(UniformGenerator.between(5, 9))
                         .setBonusRolls(ConstantValue.exactly(1))
-                        // Add a loot entry. This example returns an item loot entry. See below for more loot entries.
+                        // 添加战利品条目。此示例返回一个物品战利品条目。更多战利品条目见下文。
                         .add(LootItem.lootTableItem(Items.DIRT))
                 )
         );
@@ -315,85 +315,85 @@ public class MyLootTableSubProvider implements LootTableSubProvider {
 }
 ```
 
-Once we have our loot table sub provider, we add it to the constructor of our loot provider, like so:
+一旦我们有了战利品表子提供器，我们将其添加到战利品提供器的构造函数中，像这样：
 
 ```java
 new LootTableProvider(output, Set.of(), List.of(
         new SubProviderEntry(
-                // A reference to the sub provider's constructor.
-                // This is a Function<HolderLookup.Provider, ? extends LootTableSubProvider>.
+                // 子提供器构造函数的引用。
+                // 这是一个 Function<HolderLookup.Provider, ? extends LootTableSubProvider>。
                 MyLootTableSubProvider::new,
-                // An associated loot context set. If you're unsure what to use, use empty.
+                // 关联的战利品上下文集。如果不确定使用什么，请使用 empty。
                 LootContextParamSets.EMPTY
         ),
-        // other sub providers here (if applicable)
+        // 其他子提供器在此（如果适用）
     ), lookupProvider
 );
 ```
 
 ### `BlockLootSubProvider`
 
-`BlockLootSubProvider` is an abstract helper class containing many helpers for creating common block loot tables, e.g. single item drops (`#createSingleItemTable`), dropping the block the table is created for (`#dropSelf`), silk touch-only drops (`#createSilkTouchOnlyTable`), drops for slab-like blocks (`#createSlabItemTable`), and many more. Unfortunately, setting up a `BlockLootSubProvider` for modded usage involves more boilerplate:
+`BlockLootSubProvider` 是一个抽象的辅助类，包含许多用于创建常见方块战利品表的辅助方法，例如单个物品掉落（`#createSingleItemTable`）、掉落为其创建表的方块（`#dropSelf`）、精准采集独有掉落（`#createSilkTouchOnlyTable`）、台阶类方块的掉落（`#createSlabItemTable`）等等。不幸的是，为模组使用设置 `BlockLootSubProvider` 涉及更多样板代码：
 
 ```java
 public class MyBlockLootSubProvider extends BlockLootSubProvider {
-    // The constructor can be private if this class is an inner class of your loot table provider.
-    // The parameter is provided by the lambda in the LootTableProvider's constructor.
+    // 如果此类是你的战利品表提供器的内部类，则构造函数可以是私有的。
+    // 参数由 LootTableProvider 构造函数中的 lambda 提供。
     public MyBlockLootSubProvider(HolderLookup.Provider lookupProvider) {
-        // The first parameter is a set of blocks we are creating loot tables for. Instead of hardcoding,
-        // we use our block registry and just pass an empty set here.
-        // The second parameter is the feature flag set, this will be the default flags
-        // unless you are adding custom flags (which is beyond the scope of this article).
+        // 第一个参数是我们为其创建战利品表的方块集合。我们不用硬编码，
+        // 而是使用我们的方块注册表并在此处传递一个空集合。
+        // 第二个参数是特性标志集，这将是默认标志，
+        // 除非你添加自定义标志（这超出了本文的范围）。
         super(Set.of(), FeatureFlags.DEFAULT_FLAGS, lookupProvider);
     }
 
-    // The contents of this Iterable are used for validation.
-    // We return an Iterable over our block registry's values here.
+    // 此 Iterable 的内容用于验证。
+    // 我们在此返回遍历我们方块注册表值的 Iterable。
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        // The contents of our DeferredRegister.
+        // 我们的 DeferredRegister 的内容。
         return MyRegistries.BLOCK_REGISTRY.getEntries()
                 .stream()
-                // Cast to Block here, otherwise it will be a ? extends Block and Java will complain.
+                // 在此转换为 Block，否则它将是 ? extends Block 并且 Java 会报错。
                 .map(e -> (Block) e.value())
                 .toList();
     }
 
-    // Actually add our loot tables.
+    // 实际添加我们的战利品表。
     @Override
     protected void generate() {
-        // Equivalent to calling add(MyBlocks.EXAMPLE_BLOCK.get(), createSingleItemTable(MyBlocks.EXAMPLE_BLOCK.get()));
+        // 等效于调用 add(MyBlocks.EXAMPLE_BLOCK.get(), createSingleItemTable(MyBlocks.EXAMPLE_BLOCK.get()));
         this.dropSelf(MyBlocks.EXAMPLE_BLOCK.get());
-        // Add a table with a silk touch only loot table.
+        // 添加一个带有精准采集独有战利品表的表。
         this.add(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get(),
                 this.createSilkTouchOnlyTable(MyBlocks.EXAMPLE_SILK_TOUCHABLE_BLOCK.get()));
-        // other loot table additions here
+        // 其他战利品表添加在此
     }
 }
 ```
 
-We then add our sub provider to the loot table provider's constructor like any other sub provider:
+然后，我们像添加任何其他子提供器一样将我们的子提供器添加到战利品表提供器的构造函数中：
 
 ```java
 new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(
         MyBlockLootTableSubProvider::new,
-        LootContextParamSets.BLOCK // it makes sense to use BLOCK here
+        LootContextParamSets.BLOCK // 在此使用 BLOCK 是有意义的
     )), lookupProvider
 );
 ```
 
 ### `EntityLootSubProvider`
 
-Similar to `BlockLootSubProvider`, `EntityLootSubProvider` provides many helpers for entity loot table generation. Also similar to `BlockLootSubProvider`, we must provide a `Stream<EntityType<?>>` of entities known to the provider (instead of the `Iterable<Block>` used before). Overall, our implementation looks very similar to our `BlockLootSubProvider`, but with every mentioned of blocks swapped out for entity types:
+类似于 `BlockLootSubProvider`，`EntityLootSubProvider` 提供了许多用于实体战利品表生成的辅助方法。也类似于 `BlockLootSubProvider`，我们必须提供一个提供器已知的 `Stream<EntityType<?>>`（而不是之前使用的 `Iterable<Block>`）。总的来说，我们的实现看起来非常类似于我们的 `BlockLootSubProvider`，但所有提到的方块都换成了实体类型：
 
 ```java
 public class MyEntityLootSubProvider extends EntityLootSubProvider {
     public MyEntityLootSubProvider(HolderLookup.Provider lookupProvider) {
-        // Unlike with blocks, we do not provide a set of known entity types. Vanilla instead uses custom checks here.
+        // 与方块不同，我们不提供已知实体类型的集合。原版在此使用自定义检查。
         super(FeatureFlags.DEFAULT_FLAGS, lookupProvider);
     }
 
-    // This class uses a Stream instead of an Iterable, so we need to adjust this slightly.
+    // 这个类使用 Stream 而不是 Iterable，所以我们需要稍微调整一下。
     @Override
     protected Stream<EntityType<?>> getKnownEntityTypes() {
         return MyRegistries.ENTITY_TYPES.getEntries()
@@ -404,12 +404,12 @@ public class MyEntityLootSubProvider extends EntityLootSubProvider {
     @Override
     protected void generate() {
         this.add(MyEntities.EXAMPLE_ENTITY.get(), LootTable.lootTable());
-        // other loot table additions here
+        // 其他战利品表添加在此
     }
 }
 ```
 
-And again, we then add our sub provider to the loot table provider's constructor:
+再次，我们然后将子提供器添加到战利品表提供器的构造函数中：
 
 ```java
 new LootTableProvider(output, Set.of(), List.of(new SubProviderEntry(

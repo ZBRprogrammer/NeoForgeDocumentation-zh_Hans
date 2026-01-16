@@ -1,36 +1,36 @@
-# Data Load Conditions
+# 数据加载条件(Data Load Conditions)
 
-Sometimes, it is desirable to disable or enable certain features if another mod is present, or if any mod adds another type of ore, etc. For these use cases, NeoForge adds data load conditions. These were originally called recipe conditions, since recipes were the original use case for this system, but it has since been extended to other systems. This is also why some of the built-in conditions are limited to items.
+有时，如果另一个模组存在，或者任何模组添加了另一种类型的矿石等，希望禁用或启用某些功能。对于这些用例，NeoForge 添加了数据加载条件。这些最初被称为配方条件，因为配方是此系统的最初用例，但此后已扩展到其他系统。这也是为什么一些内置条件仅限于物品。
 
-Most JSON files can optionally declare a `neoforge:conditions` block in the root, which will be evaluated before the data file is actually loaded. Loading will continue if and only if all conditions pass, otherwise the data file will be ignored. (The exception to this rule are [loot tables][loottable], which will be replaced with an empty loot table instead.)
+大多数 JSON 文件可以在根目录中可选地声明一个 `neoforge:conditions` 块，该块将在实际加载数据文件之前进行评估。当且仅当所有条件通过时，加载才会继续，否则数据文件将被忽略。（此规则的例外是[战利品表(loot tables)][loottable]，它将被替换为空战利品表。）
 
 ```json5
 {
     "neoforge:conditions": [
         {
-            // Condition 1
+            // 条件 1
         },
         {
-            // Condition 2
+            // 条件 2
         },
         // ...
     ],
-    // The rest of the data file
+    // 数据文件的其余部分
 }
 ```
 
-:::note
-If the value to load is not a map/object, it is stored within `neoforge:value`:
+:::注意
+如果要加载的值不是映射/对象，则存储在 `neoforge:value` 中：
 
 ```json5
 {
     "neoforge:conditions": [ /* ...*/ ],
-    "neoforge:value": 2 // The value to load
+    "neoforge:value": 2 // 要加载的值
 }
 ```
 :::
 
-For example, if we want to only load our file if a mod with id `examplemod` is present, our file would look something like this:
+例如，如果我们只想在 ID 为 `examplemod` 的模组存在时加载我们的文件，我们的文件将如下所示：
 
 ```json5
 {
@@ -47,61 +47,61 @@ For example, if we want to only load our file if a mod with id `examplemod` is p
 }
 ```
 
-:::note
-Most vanilla files have been patched to use conditions using the `ConditionalCodec` wrapper. However, not all systems, especially those not using a [codec], can use conditions. To find out whether a data file can use conditions, check the backing codec definition. 
+:::注意
+大多数原版文件已使用 `ConditionalCodec` 包装器进行了修补以使用条件。然而，并非所有系统，特别是那些不使用[编解码器(codec)]的系统，都可以使用条件。要确定数据文件是否可以使用条件，请检查背后的编解码器定义。
 :::
 
-## Built-In Conditions
+## 内置条件(Built-In Conditions)
 
-### `neoforge:always` and `neoforge:never`
+### `neoforge:always` 和 `neoforge:never`
 
-These consist of no data and return the expected value.
+这些不包含数据并返回预期值。
 
 ```json5
 {
-    // Will always return true (or false for "neoforge:never")
+    // 将始终返回 true（对于 "neoforge:never" 则返回 false）
     "type": "neoforge:always"
 }
 ```
 
-:::tip
-Using the `neoforge:never` condition very cleanly allows disabling any data file. Simply place a file with the following contents at the needed location:
+:::提示
+使用 `neoforge:never` 条件可以非常干净地禁用任何数据文件。只需在所需位置放置一个包含以下内容的文件：
 
 ```json5
 {"neoforge:conditions":[{"type":"neoforge:never"}]}
 ```
 
-Disabling files this way will **not** cause log spam.
+以这种方式禁用文件将**不会**导致日志垃圾信息。
 :::
 
 ### `neoforge:not`
 
-This condition accepts another condition and inverts it.
+此条件接受另一个条件并反转它。
 
 ```json5
 {
-    // Inverts the result of the stored condition
+    // 反转存储条件的结果
     "type": "neoforge:not",
     "value": {
-        // Another condition
+        // 另一个条件
     }
 }
 ```
 
-### `neoforge:and` and `neoforge:or`
+### `neoforge:and` 和 `neoforge:or`
 
-These conditions accept the condition(s) being operated upon and apply the expected logic. There is no limit to the amount of accepted conditions.
+这些条件接受被操作的条件并应用预期的逻辑。接受的条件数量没有限制。
 
 ```json5
 {
-    // ANDs the stored conditions together (or ORs for "neoforge:or")
+    // 将存储的条件进行 AND 运算（对于 "neoforge:or" 则是 OR 运算）
     "type": "neoforge:and",
     "values": [
         {
-            // First condition
+            // 第一个条件
         },
         {
-            // Second condition
+            // 第二个条件
         }
     ]
 }
@@ -109,65 +109,65 @@ These conditions accept the condition(s) being operated upon and apply the expec
 
 ### `neoforge:mod_loaded`
 
-This condition returns true if a mod with the given mod id is loaded, and false otherwise.
+如果加载了具有给定模组 ID 的模组，则此条件返回 true，否则返回 false。
 
 ```json5
 {
     "type": "neoforge:mod_loaded",
-    // Returns true if "examplemod" is loaded
+    // 如果加载了 "examplemod"，则返回 true
     "modid": "examplemod"
 }
 ```
 
 ### `neoforge:registered`
 
-This condition returns true if an object in a specific registry with the given registry name has been registered, and false otherwise.
+如果具有给定注册表名称的特定注册表中的对象已注册，则此条件返回 true，否则返回 false。
 
 ```json5
 {
     "type": "neoforge:registered",
-    // The registry to check the value for
-    // Defaults to `minecraft:item`
+    // 要检查值的注册表
+    // 默认为 `minecraft:item`
     "registry": "minecraft:item",
-    // Returns true if "examplemod:example_item" has been registered
+    // 如果 "examplemod:example_item" 已注册，则返回 true
     "value": "examplemod:example_item"
 }
 ```
 
 ### `neoforge:tag_empty`
 
-This condition returns true if the given registry [tag] is empty, and false otherwise.
+如果给定的注册表[标签(tag)]为空，则此条件返回 true，否则返回 false。
 
 ```json5
 {
     "type": "neoforge:tag_empty",
-    // The registry to check the tag for
-    // Defaults to `minecraft:item`
+    // 要检查标签的注册表
+    // 默认为 `minecraft:item`
     "registry": "minecraft:item",
-    // Returns true if "examplemod:example_tag" is an empty tag
+    // 如果 "examplemod:example_tag" 是空标签，则返回 true
     "tag": "examplemod:example_tag"
 }
 ```
 
 ### `neoforge:feature_flags_enabled`
 
-This condition returns true if the provided [feature flags][flags] are enabled, and false otherwise.
+如果提供的[功能标志(feature flags)][flags]已启用，则此条件返回 true，否则返回 false。
 
 ```json5
 {
     "type": "neoforge:feature_flags_enabled",
-    // Returns true if the "examplemod:example_feature" is enabled
+    // 如果 "examplemod:example_feature" 已启用，则返回 true
     "flags": [
         "examplemod:example_feature"
     ]
 }
 ```
 
-## Creating Custom Conditions
+## 创建自定义条件(Creating Custom Conditions)
 
-Custom conditions can be created by implementing `ICondition` and its `#test(IContext)` method, as well as creating a [map codec][codec] for it. The `IContext` parameter in `#test` has access to some parts of the game state. Currently, this only allows you to query tags from registries. Some objects with conditions may be loaded earlier than tags, in which case the context will be `IContext.EMPTY` and not contain any tag information at all.
+可以通过实现 `ICondition` 及其 `#test(IContext)` 方法，并为它创建一个[映射编解码器(map codec)][codec]来创建自定义条件。`#test` 中的 `IContext` 参数可以访问游戏状态的某些部分。目前，这仅允许您从注册表查询标签。某些带有条件的对象可能比标签更早加载，在这种情况下，上下文将是 `IContext.EMPTY`，并且根本不包含任何标签信息。
 
-For example, let's assume we want to implement an `xor` condition, then our condition would look something like this:
+例如，假设我们想实现一个 `xor` 条件，那么我们的条件将如下所示：
 
 ```java
 public record XorCondition(ICondition first, ICondition second) implements ICondition {
@@ -188,7 +188,7 @@ public record XorCondition(ICondition first, ICondition second) implements ICond
 }
 ```
 
-Conditions are a registry of codecs. As such, we need to [register] our codec, like so:
+条件是编解码器的注册表。因此，我们需要[注册(register)]我们的编解码器，如下所示：
 
 ```java
 public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITION_CODECS =
@@ -198,7 +198,7 @@ public static final Supplier<MapCodec<XorCondition>> XOR =
         CONDITION_CODECS.register("xor", () -> XorCondition.CODEC);
 ```
 
-And then, we can use our condition in some data file (assuming we registered the condition under the `examplemod` namespace):
+然后，我们可以在某个数据文件中使用我们的条件（假设我们在 `examplemod` 命名空间下注册了该条件）：
 
 ```json5
 {
@@ -206,38 +206,38 @@ And then, we can use our condition in some data file (assuming we registered the
         {
             "type": "examplemod:xor",
             "first": {
-                // Either this condition is true
+                // 要么这个条件为真
                 "type": "..."
             },
             "second": {
-                // Or this condition, not both!
+                // 要么这个条件为真，但不能两者都为真！
                 "type": "..."
             }
         }
     ],
-    // The rest of the data file
+    // 数据文件的其余部分
 }
 ```
 
-## Datagen
+## 数据生成(Datagen)
 
-While any datapack JSON file can use load conditions, only a few [data providers][datagen] have been modified to be able to generate them. These include:
+虽然任何数据包 JSON 文件都可以使用加载条件，但只有少数[数据提供者(data providers)][datagen]已被修改为能够生成它们。这些包括：
 
-- [`RecipeProvider`][recipeprovider] (via `RecipeOutput#withConditions`), including recipe advancements
-- `JsonCodecProvider` and its subclass `SpriteSourceProvider`
+- [`RecipeProvider`][recipeprovider]（通过 `RecipeOutput#withConditions`），包括配方进度
+- `JsonCodecProvider` 及其子类 `SpriteSourceProvider`
 - [`DataMapProvider`][datamapprovider]
 - [`GlobalLootModifierProvider`][glmprovider]
-- [`DatapackBuiltinEntriesProvider`][datapackentries] (via `Map<ResourceKey<?>, List<ICondition>>` parameter)
+- [`DatapackBuiltinEntriesProvider`][datapackentries]（通过 `Map<ResourceKey<?>, List<ICondition>>` 参数）
 
-For the conditions themselves, the `NeoForgeConditions` class provides static helpers for each of the built-in condition types that return the corresponding `ICondition`s.
+对于条件本身，`NeoForgeConditions` 类为每个内置条件类型提供了静态辅助方法，返回相应的 `ICondition`。
 
-[codec]: ../../datastorage/codecs
-[datagen]: ../index.md#data-generation
-[datamapprovider]: datamaps/index.md#data-generation
-[datapackentries]: ../../concepts/registries.md#data-generation-for-datapack-registries
-[flags]: ../../advanced/featureflags.md
-[glmprovider]: loottables/glm.md#datagen
-[loottable]: loottables/index.md
-[recipeprovider]: recipes/index.md#data-generation
-[register]: ../../concepts/registries
-[tag]: tags.md
+[编解码器(codec)]: ../../datastorage/codecs
+[数据生成(datagen)]: ../index.md#data-generation
+[数据映射提供者(datamapprovider)]: datamaps/index.md#data-generation
+[数据包内置条目提供者(datapackentries)]: ../../concepts/registries.md#data-generation-for-datapack-registries
+[功能标志(flags)]: ../../advanced/featureflags.md
+[全局战利品修改器提供者(glmprovider)]: loottables/glm.md#datagen
+[战利品表(loottable)]: loottables/index.md
+[配方提供者(recipeprovider)]: recipes/index.md#data-generation
+[注册(register)]: ../../concepts/registries
+[标签(tag)]: tags.md

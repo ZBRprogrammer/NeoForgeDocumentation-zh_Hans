@@ -7,7 +7,7 @@
 ## 方块状态属性
 
 方块状态使用一个属性系统。一个方块可以有多个不同类型的属性。例如，末地传送门框架有两个属性：是否有一只眼睛（`eye`，2个选项）以及它被放置的方向（`facing`，4个选项）。因此，末地传送门框架总共有8（2 * 4）种不同的方块状态：
-```
+``` java
 minecraft:end_portal_frame[facing=north,eye=false]
 minecraft:end_portal_frame[facing=east,eye=false]
 minecraft:end_portal_frame[facing=south,eye=false]
@@ -63,7 +63,7 @@ minecraft:end_portal_frame[facing=west,eye=true]
 
 为了进一步说明这一点，以下是`EndPortalFrameBlock`类的相关部分：
 
-```
+``` java
 public class EndPortalFrameBlock extends Block {
     // Note: It is possible to directly use the values in BlockStateProperties instead of referencing them here again.
     // However, for the sake of simplicity and readability, it is recommended to add constants like this.
@@ -101,14 +101,14 @@ public class EndPortalFrameBlock extends Block {
 
 你可以通过调用`BlockState#getValue(Property<?>)`来获取属性的值，传递给它你想要获取值的属性。重用我们的末地传送门框架示例，这将如下所示：
 
-```
+``` java
 // EndPortalFrameBlock.FACING is an EnumPropery<Direction> and thus can be used to obtain a Direction from the BlockState
 Direction direction = endPortalFrameBlockState.getValue(EndPortalFrameBlock.FACING);
 ```
 
 如果你想获得具有不同值集的`BlockState`，只需在现有的方块状态上调用`BlockState#setValue(Property<T>, T)`并指定属性及其值。以我们的末地传送门框架为例，如下所示：
 
-```
+``` java
 endPortalFrameBlockState = endPortalFrameBlockState.setValue(EndPortalFrameBlock.FACING, Direction.SOUTH);
 ```
 

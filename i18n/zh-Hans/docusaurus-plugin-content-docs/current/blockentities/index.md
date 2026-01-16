@@ -12,7 +12,7 @@
 
 让我们从创建方块实体类开始：
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
     public MyBlockEntity(BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -24,7 +24,7 @@ public class MyBlockEntity extends BlockEntity {
 
 [注册][registration]的过程与实体类似。我们创建关联的单例类`BlockEntityType<?>`的实例，并将其注册到方块实体类型注册表中，如下所示：
 
-```
+``` java
 public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
         DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ExampleMod.MOD_ID);
 
@@ -50,7 +50,7 @@ public static final Supplier<BlockEntityType<MyBlockEntity>> MY_BLOCK_ENTITY = B
 
 现在我们有了方块实体类型，我们可以用它来替换我们之前留下的`type`变量：
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
     public MyBlockEntity(BlockPos pos, BlockState state) {
         super(MY_BLOCK_ENTITY.get(), pos, state);
@@ -64,7 +64,7 @@ public class MyBlockEntity extends BlockEntity {
 
 最后，我们需要修改与方块实体关联的方块类。这意味着我们将无法将方块实体附加到简单的`Block`实例，而是需要一个子类：
 
-```
+``` java
 // The important part is implementing the EntityBlock interface and overriding the #newBlockEntity method.
 public class MyEntityBlock extends Block implements EntityBlock {
     // Constructor deferring to super.
@@ -82,7 +82,7 @@ public class MyEntityBlock extends Block implements EntityBlock {
 
 然后，您当然需要在[方块注册][blockreg]中使用此类作为类型：
 
-```
+``` java
 public static final DeferredBlock<MyEntityBlock> MY_BLOCK_1 =
         BLOCKS.register("my_block_1", () -> new MyEntityBlock( /* ... */ ));
 public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
@@ -99,7 +99,7 @@ public static final DeferredBlock<MyEntityBlock> MY_BLOCK_2 =
 
 可以使用`#loadAdditional`和`#saveAdditional`方法分别从[值I/O][valueio]读取数据并写入数据。当方块实体同步到磁盘或通过网络同步时，会调用这些方法。
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
     // This can be any value of any type you want, so long as you can somehow serialize it to the value I/O.
     // We will use an int for the sake of example.
@@ -134,7 +134,7 @@ public class MyBlockEntity extends BlockEntity {
 
 有时，您可能希望方块实体在移除时导出其存储的数据（例如，当被玩家破坏时掉落其物品栏）。在这些情况下，逻辑应在`BlockEntity#preRemoveSideEffects`内处理。默认情况下，如果您的方块实体掉落实现了[`Container`][container]，则方块实体将掉落其存储的内容。
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
 
     @Override
@@ -151,7 +151,7 @@ public class MyBlockEntity extends BlockEntity {
 
 如果相邻方块需要知道方块实体被破坏（例如，通过比较器输出红石信号的物品栏），那么您的方块应该重写`BlockBehaviour#affectNeighborsAfterRemoval`。输出红石信号的方块实体通常在这里调用`Containers#updateNeighboursAfterDestroy`。
 
-```
+``` java
 public class MyEntityBlock extends Block implements EntityBlock {
 
     @Override
@@ -166,7 +166,7 @@ public class MyEntityBlock extends Block implements EntityBlock {
 
 方块实体的另一个非常常见的用途，通常与一些存储的数据结合，是刻处理。刻处理意味着每个游戏刻执行一些代码。这是通过重写`EntityBlock#getTicker`并返回一个`BlockEntityTicker`来完成的，`BlockEntityTicker`基本上是一个具有四个参数（level、position、blockstate和block entity）的消费者，如下所示：
 
-```
+``` java
 // Note: The ticker is defined in the block, not the block entity. However, it is good practice to
 // keep the ticking logic in the block entity in some way, for example by defining a static #tick method.
 public class MyEntityBlock extends Block implements EntityBlock {
@@ -203,7 +203,7 @@ public class MyBlockEntity extends BlockEntity {
 
 每次从网络或磁盘读取区块时，都会加载区块（并因此使用此方法）。要在此处发送数据，您需要重写以下方法：
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
     // ...
 
@@ -226,7 +226,7 @@ public class MyBlockEntity extends BlockEntity {
 
 每当方块更新发生时，就会使用此方法。方块更新必须手动触发，但通常比区块同步处理得更快。
 
-```
+``` java
 public class MyBlockEntity extends BlockEntity {
     // ...
 

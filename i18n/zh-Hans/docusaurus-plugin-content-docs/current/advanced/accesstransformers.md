@@ -21,7 +21,7 @@ import TabItem from '@theme/TabItem';
 </TabItem>
 <TabItem value="ng" label="NeoGradle">
 
-```
+``` java
 // In build.gradle:
 minecraft {
     accessTransformers {
@@ -35,7 +35,7 @@ minecraft {
 
 默认情况下，NeoForge会搜索`META-INF/accesstransformer.cfg`。如果`build.gradle`在其他位置指定了访问转换器(Access Transformers)，则需要在`neoforge.mods.toml`中定义它们的位置：
 
-```
+``` java
 # In neoforge.mods.toml:
 [[accessTransformers]]
 ## The file is relative to the output directory of the resources, or the root path inside the jar when compiled
@@ -48,7 +48,7 @@ file="META-INF/accesstransformer.cfg"
 <Tabs defaultValue="mdg">
 <TabItem value="mdg" label="ModDevGradle">
 
-```
+``` java
 // In build.gradle:
 neoForge {
     // ModDevGradle already tries to include 'src/main/resources/META-INF/accesstransformer.cfg' by default
@@ -59,7 +59,7 @@ neoForge {
 </TabItem>
 <TabItem value="ng" label="NeoGradle">
 
-```
+``` java
 // In build.gradle:
 minecraft {
     accessTransformers {
@@ -72,7 +72,7 @@ minecraft {
 </TabItem>
 </Tabs>
 
-```
+``` java
 # In neoforge.mods.toml
 [[accessTransformers]]
 file="accesstransformer.cfg"
@@ -112,7 +112,7 @@ file="accesstransformer_additions.cfg"
 
 要针对类：
 
-```
+``` java
 <access modifier> <fully qualified class name>
 ```
 
@@ -122,7 +122,7 @@ file="accesstransformer_additions.cfg"
 
 要针对字段：
 
-```
+``` java
 <access modifier> <fully qualified class name> <field name>
 ```
 
@@ -130,7 +130,7 @@ file="accesstransformer_additions.cfg"
 
 针对方法需要一种特殊的语法来表示方法参数和返回类型：
 
-```
+``` java
 <access modifier> <fully qualified class name> <method name>(<parameter types>)<return type>
 ```
 
@@ -157,7 +157,7 @@ file="accesstransformer_additions.cfg"
 
 ### 示例
 
-```
+``` java
 # Makes public the ByteArrayToKeyFunction interface in Crypt
 public net.minecraft.util.Crypt$ByteArrayToKeyFunction
 

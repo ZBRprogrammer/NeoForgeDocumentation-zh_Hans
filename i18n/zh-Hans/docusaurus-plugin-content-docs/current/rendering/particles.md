@@ -1,130 +1,130 @@
-# Client Particles
+# 客户端粒子 (Client Particles)
 
-Particles are visual effects that polish the game and add immersion. Being mostly visual in nature, critical parts exist only on the physical (and logical) client [side].
+粒子 (particles) 是用于完善游戏和增加沉浸感的视觉特效。由于主要具有视觉性质，关键部分仅存在于物理（和逻辑）客户端[端 (side)]。
 
-This article covers the rendering-specific aspects of the particle. For more information on particles types, which are typically used to spawn particles; and particle descriptions, which can specify a particle's sprites, see the companion [particle types][particletype] article. 
+本文涵盖粒子与渲染相关的方面。有关粒子类型 (particle types) 的更多信息（通常用于生成粒子），以及粒子描述 (particle descriptions)（可以指定粒子的精灵图 (sprites)），请参阅配套的[粒子类型 (particle types)][particletype]文章。
 
-## The `Particle` class
+## `Particle` 类
 
-A `Particle` defines the client representation of what is spawned in the world and displayed to the player. Most properties and basic physics are controlled by fields such as `gravity`, `lifetime`, `hasPhysics`, `friction`, etc. The only two methods that are commonly overridden are `tick` and `move`, both of which do exactly as their name implies. As such, most custom particles are often short, consisting only a of a constructor that sets the desired fields with the occasional override in the two methods.
+`Particle` 定义了在世界中生成并向玩家显示的客户端表示形式。大多数属性和基础物理由字段控制，如 `gravity`、`lifetime`、`hasPhysics`、`friction` 等。通常需要重写的两个方法是 `tick` 和 `move`，两者都如其名所示。因此，大多数自定义粒子通常都很简短，只包含一个设置所需字段的构造函数，偶尔重写这两个方法。
 
-The two most common methods for constructing a particle are through subclassing `SingleQuadParticle` for one of its implementations (e.g. `SimpleAnimatedParticle`), which which blits a look-facing texture to the screen; or directly subclassing `Particle`, which gives full control of the [features] being submitted for rendering.
+构造粒子最常用的两种方法是：通过继承 `SingleQuadParticle` 或其某个实现（例如 `SimpleAnimatedParticle`），它会在屏幕上绘制一个面向视口的纹理 (look-facing texture)；或者直接继承 `Particle`，这可以完全控制为渲染而提交的[特性 (features)]。
 
-## A Single Quad
+## 单四边形粒子 (A Single Quad)
 
-Particles that extend `SingleQuadParticle` draw a single quad with some atlas sprite to the screen. There are many helpers provided in the class, from setting the size of the particle (via the `quadSize` field or `scale` method), to tinting the texture (via `setColor` and `setAlpha`). However, the two most important things about a quad particle is the `TextureAtlasSprite` used as the texture, and where that sprite is obtained and rendered through `SingleQuadParticle.Layer`.
+继承 `SingleQuadParticle` 的粒子会向屏幕绘制一个带有某个图集精灵 (atlas sprite) 的四边形 (quad)。该类提供了许多辅助方法，从设置粒子大小（通过 `quadSize` 字段或 `scale` 方法），到为纹理着色（通过 `setColor` 和 `setAlpha`）。然而，关于四边形粒子最重要的两点是：用作纹理的 `TextureAtlasSprite`，以及通过 `SingleQuadParticle.Layer` 获取和渲染该精灵图的位置。
 
-First, the `TextureAtlasSprite` is passed into the constructor, either as itself or more likely a `SpriteSet`, representing the texture over its lifetime. Initially, the sprite is set to the protected `sprite` field, but it can be updated during `tick` by calling `setSprite` or `setSpriteFromAge`, respectively.
+首先，`TextureAtlasSprite` 被传入构造函数，可以是其本身，或者更常见的是一个 `SpriteSet`，代表其生命周期中的纹理。初始时，精灵图被设置到受保护的 `sprite` 字段，但可以在 `tick` 期间通过调用 `setSprite` 或 `setSpriteFromAge` 来更新。
 
 :::tip
-If the `age` or `lifetime` field is updated in the particle constructor, `setSpriteFromAge` should be called to display the appropriate texture.
+如果在粒子构造函数中更新了 `age` 或 `lifetime` 字段，则应调用 `setSpriteFromAge` 以显示适当的纹理。
 :::
 
-Then, during the [feature submission process][features], the `SingleQuadParticle.Layer` determines what atlas to use along with the pipeline used to draw the quad to the screen. Vanilla provides three layers by default:
+然后，在[特性提交过程 (feature submission process)][features]中，`SingleQuadParticle.Layer` 确定使用哪个图集以及用于将四边形绘制到屏幕的渲染管线 (pipeline)。默认情况下，Vanilla 提供了三个层：
 
-| Layer         | Texture Atlas | For                               |
+| 层 (Layer) | 纹理图集 (Texture Atlas) | 用于 (For) |
 |:-------------:|:-------------:|:----------------------------------|
-| `TERRAIN`     | Blocks        | Particles that use block textures |
-| `OPAQUE`      | Particles     | Particles with no transparency    |
-| `TRANSLUCENT` | Particles     | Particles with transparency       |
+| `TERRAIN` | 方块 (Blocks) | 使用方块纹理的粒子 |
+| `OPAQUE` | 粒子 (Particles) | 没有透明度的粒子 |
+| `TRANSLUCENT` | 粒子 (Particles) | 有透明度的粒子 |
 
-Custom layers can be easily created by calling the constructor.
+可以通过调用构造函数轻松创建自定义层。
 
 ```java
 public class MyQuadParticle extends SingleQuadParticle {
 
     public static final SingleQuadParticle.Layer EXAMPLE_LAYER = new SingleQuadParticle.Layer(
-        // Whether the particle will have textures that are not fully opaque.
+        // 粒子是否使用非完全不透明的纹理。
         true,
-        // The texture atlas used to get the sprite from.
-        // This should match `TextureAtlasSprite#atlasLocation`.
+        // 用于获取精灵图的纹理图集。
+        // 这应该与 `TextureAtlasSprite#atlasLocation` 匹配。
         TextureAtlas.LOCATION_PARTICLES,
-        // The render pipeline used to draw the particle.
-        // Custom render pipelines should be based from `RenderPipelines#PARTICLE_SNIPPET`
-        // to specify the available uniforms and samplers.
+        // 用于绘制粒子的渲染管线。
+        // 自定义渲染管线应基于 `RenderPipelines#PARTICLE_SNIPPET`
+        // 来指定可用的 uniforms 和 samplers。
         RenderPipelines.WEATHER_DEPTH_WRITE
     );
 
     private final SpriteSet spriteSet;
 
-    // First four parameters are self-explanatory.
-    // The sprite set or atlas sprite are typically given through the provider, see below.
-    // Additional parameters can be added as needed, e.g., xSpeed/ySpeed/zSpeed.
+    // 前四个参数是不言自明的。
+    // 精灵图集或图集精灵通常通过提供者 (provider) 给出，见下文。
+    // 可以根据需要添加其他参数，例如 xSpeed/ySpeed/zSpeed。
     public MyQuadParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet) {
-        // Initial sprite set in constructor
+        // 在构造函数中初始设置精灵图集
         super(level, x, y, z, spriteSet.first());
         this.spriteSet = spriteSet;
-        this.gravity = 0; // Our particle floats in midair now, because why not.
+        this.gravity = 0; // 我们的粒子现在漂浮在半空中，为什么不呢。
     }
 
     @Override
     public void tick() {
-        // Let super handle movement.
-        // You may replace this with your own movement if needed.
-        // You may also override move() if you only want to modify the built-in movement.
+        // 让父类处理移动。
+        // 如果需要，你可以用你自己的移动逻辑替换它。
+        // 如果只想修改内置的移动逻辑，你也可以重写 move()。
         super.tick();
 
-        // Set the sprite for the current particle age, i.e. advance the animation.
+        // 为当前粒子年龄设置精灵图，即推进动画。
         this.setSpriteFromAge(this.spriteSet);
     }
 
     @Override
     protected abstract SingleQuadParticle.Layer getLayer() {
-        // Sets the layer used to get and submit the texture.
+        // 设置用于获取和提交纹理的层。
         return EXAMPLE_LAYER;
     }
 }
 ```
 
 :::warning
-Particles whose `SingleQuadParticle.Layer` uses `TextureAtlas#LOCATION_PARTICLES` must have an associated [particle description][description]. Otherwise, the textures required by the particle will not be added to the atlas.
+其 `SingleQuadParticle.Layer` 使用 `TextureAtlas#LOCATION_PARTICLES` 的粒子必须有关联的[粒子描述 (particle description)][description]。否则，粒子所需的纹理将不会被添加到图集中。
 :::
 
 ## `ParticleProvider`
 
-Once a particle for some particle type has been created, the particle type must be linked through a `ParticleProvider`. `ParticleProvider` is a client-only class responsible for actually creating our `Particle`s from the `ParticleEngine` via `createParticle`. While more elaborate code can be included here, many particle providers are as simple as this:
+为某个粒子类型创建好粒子后，必须通过 `ParticleProvider` 将粒子类型链接起来。`ParticleProvider` 是一个仅客户端的类，负责通过 `createParticle` 方法从 `ParticleEngine` 实际创建我们的 `Particle`s。虽然这里可以包含更复杂的代码，但许多粒子提供者都像这样简单：
 
 ```java
-// The generic type of ParticleProvider must match the type of the particle type this provider is for.
+// ParticleProvider 的泛型类型必须与此提供者所针对的粒子类型相匹配。
 public class MyQuadParticleProvider implements ParticleProvider<SimpleParticleType> {
 
-    // A set of particle sprites.
+    // 一组粒子精灵图。
     private final SpriteSet spriteSet;
 
-    // The registration function passes a SpriteSet, so we accept that and store it for further use.
-    // If your particle does not require a SpriteSet, this constructor can be omitted.
+    // 注册函数传递一个 SpriteSet，所以我们接收并存储它以供进一步使用。
+    // 如果你的粒子不需要 SpriteSet，则可以省略此构造函数。
     public MyParticleProvider(SpriteSet spriteSet) {
         this.spriteSet = spriteSet;
     }
 
-    // This is where the magic happens. We return a new particle each time this method is called!
-    // The type of the first parameter matches the generic type passed to the super interface.
+    // 魔法发生的地方。每次调用此方法时，我们都返回一个新粒子！
+    // 第一个参数的类型与传递给超接口的泛型类型匹配。
     @Override
     @Nullable
     public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z, double xd, double yd, double zd, RandomSource random
     ) {
-        // We don't use the type, speed deltas, or engine random.
+        // 我们不使用类型、速度增量或引擎随机数。
         return new MyQuadParticle(level, x, y, z, this.spriteSet);
     }
 }
 ```
 
-Your particle provider must then be associated with the particle type in the [client-side][side] [mod bus][modbus] [event] `RegisterParticleProvidersEvent`:
+然后，你的粒子提供者必须在[客户端 (client-side)][side]的[模组总线 (mod bus)][modbus][事件 (event)] `RegisterParticleProvidersEvent` 中与粒子类型关联：
 
 ```java
-@SubscribeEvent // on the mod event bus only on the physical client
+@SubscribeEvent // 仅在物理客户端的模组事件总线上
 public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-    // There are multiple ways to register providers, all differing in the functional type they provide in the
-    // second parameter. For example, #registerSpriteSet represents a Function<SpriteSet, ParticleProvider<?>>:
+    // 有多种注册提供者的方式，它们的不同之处在于第二个参数提供的函数类型。
+    // 例如，#registerSpriteSet 表示一个 Function<SpriteSet, ParticleProvider<?>>：
     event.registerSpriteSet(MyParticleTypes.MY_QUAD_PARTICLE.get(), MyQuadParticleProvider::new);
 
-    // #registerSpecial, on the other hand, maps to a ParticleProvider<?>.
-    // This should be used if the sprite is not obtained from the particle description.
+    // 另一方面，#registerSpecial 映射到一个 ParticleProvider<?>。
+    // 如果精灵图不是从粒子描述中获取的，则应使用此方法。
 }
 ```
 
 :::warning
-If `registerSpriteSet` is used, then the particle type must also have an associated [particle description][description]. Otherwise, an exception will be thrown stating it 'Failed to load description'.
+如果使用了 `registerSpriteSet`，则粒子类型也必须有关联的[粒子描述 (particle description)][description]。否则，将抛出异常，指出“无法加载描述 (Failed to load description)”。
 :::
 
 [description]: ../resources/client/particles.md

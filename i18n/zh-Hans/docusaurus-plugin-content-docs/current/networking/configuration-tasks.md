@@ -1,28 +1,28 @@
 ---
 sidebar_position: 3
 ---
-# Using Configuration Tasks
+# 使用配置任务(Using Configuration Tasks)
 
-The networking protocol for the client and server has a specific phase where the server can configure the client before the player actually joins the game. This phase is called the configuration phase, and is for example used by the vanilla server to send the resource pack information to the client.
+客户端和服务器之间的网络协议有一个特定的阶段，在玩家实际加入游戏之前，服务器可以配置客户端。这个阶段称为配置阶段(Configuration Phase)，例如，原版服务器使用此阶段向客户端发送资源包信息。
 
-This phase can also be used by mods to configure the client before the player joins the game.
+模组也可以使用此阶段在玩家加入游戏之前配置客户端。
 
-## Registering a configuration task
+## 注册配置任务(Registering a configuration task)
 
-The first step to using the configuration phase is to register a configuration task. This can be done by registering a new configuration task in the `RegisterConfigurationTasksEvent` event.
+使用配置阶段的第一步是注册一个配置任务。这可以通过在 `RegisterConfigurationTasksEvent` 事件中注册一个新的配置任务来完成。
 
 ```java
-@SubscribeEvent // on the mod event bus
+@SubscribeEvent // 在模组事件总线(mod event bus)上
 public static void register(final RegisterConfigurationTasksEvent event) {
     event.register(new MyConfigurationTask());
 }
 ```
 
-The `RegisterConfigurationTasksEvent` event is fired on the mod bus, and exposes the current listener used by the server to configure the relevant client. A modder can use the exposed listener to figure out if the client is running the mod, and if so, register a configuration task.
+`RegisterConfigurationTasksEvent` 事件在模组总线(mod bus)上触发，并暴露服务器用于配置相关客户端的当前监听器。模组开发者可以使用暴露的监听器来判断客户端是否正在运行该模组，如果是，则注册一个配置任务。
 
-## Implementing a configuration task
+## 实现配置任务(Implementing a configuration task)
 
-A configuration task is a simple interface: `ICustomConfigurationTask`. This interface has two methods: `void run(Consumer<CustomPacketPayload> sender);`, and `ConfigurationTask.Type type();` which returns the type of the configuration task. The type is used to identify the configuration task. An example of a configuration task is shown below:
+配置任务是一个简单的接口：`ICustomConfigurationTask`。此接口有两个方法：`void run(Consumer<CustomPacketPayload> sender);` 和 `ConfigurationTask.Type type();`，后者返回配置任务的类型。类型用于标识配置任务。下面显示了一个配置任务的示例：
 
 ```java
 public record MyConfigurationTask implements ICustomConfigurationTask {
@@ -41,15 +41,15 @@ public record MyConfigurationTask implements ICustomConfigurationTask {
 }
 ```
 
-## Acknowledging a configuration task
+## 确认配置任务(Acknowledging a configuration task)
 
-Your configuration is executed on the server, and the server needs to know when the next configuration task can be executed. This is done by acknowledging the execution of said configuration task.
+您的配置在服务器上执行，服务器需要知道何时可以执行下一个配置任务。这是通过确认所述配置任务的执行来完成的。
 
-There are two primary ways of achieving this:
+有两种主要方法可以实现这一点：
 
-### Capturing the listener
+### 捕获监听器(Capturing the listener)
 
-When the client does not need to acknowledge the configuration task, then the listener can be captured, and the configuration task can be acknowledged directly on the server side.
+当客户端不需要确认配置任务时，可以捕获监听器，并在服务器端直接确认配置任务。
 
 ```java
 public record MyConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
@@ -69,26 +69,26 @@ public record MyConfigurationTask(ServerConfigurationPacketListener listener) im
 }
 ```
 
-To use such a configuration task, the listener needs to be captured in the `RegisterConfigurationTasksEvent` event.
+要使用这样的配置任务，需要在 `RegisterConfigurationTasksEvent` 事件中捕获监听器。
 
 ```java
-@SubscribeEvent // on the mod event bus
+@SubscribeEvent // 在模组事件总线(mod event bus)上
 public static void register(final RegisterConfigurationTasksEvent event) {
     event.register(new MyConfigurationTask(event.getListener()));
 }
 ```
 
-Then the next configuration task will be executed immediately after the current configuration task has completed, and the client does not need to acknowledge the configuration task. Additionally, the server will not wait for the client to properly process the send payloads.
+然后，当前配置任务完成后将立即执行下一个配置任务，客户端无需确认配置任务。此外，服务器不会等待客户端正确处理发送的有效载荷(Payload)。
 
-### Acknowledging the configuration task
+### 确认配置任务(Acknowledging the configuration task)
 
-When the client needs to acknowledge the configuration task, then you will need to send your own payload to the client:
+当客户端需要确认配置任务时，您需要向客户端发送自己的有效载荷(Payload)：
 
 ```java
 public record AckPayload() implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<AckPayload> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("mymod", "ack"));
     
-    // Unit codec with no data to write
+    // 无数据的单元编解码器(Unit codec)
     public static final StreamCodec<ByteBuf, AckPayload> STREAM_CODEC = StreamCodec.unit(new AckPayload());
 
     @Override
@@ -98,7 +98,7 @@ public record AckPayload() implements CustomPacketPayload {
 }
 ```
 
-When a payload from a server side configuration task is properly processed you can send this payload to the server to acknowledge the configuration task.
+当服务器端配置任务的有效载荷(Payload)被正确处理时，您可以向服务器发送此有效载荷(Payload)以确认配置任务。
 
 ```java
 public void onMyData(MyData data, IPayloadContext context) {
@@ -106,7 +106,7 @@ public void onMyData(MyData data, IPayloadContext context) {
         blah(data.name());
     })
     .exceptionally(e -> {
-        // Handle exception
+        // 处理异常
         context.disconnect(Component.translatable("my_mod.configuration.failed", e.getMessage()));
         return null;
     })
@@ -116,9 +116,9 @@ public void onMyData(MyData data, IPayloadContext context) {
 }
 ```
 
-Where `onMyData` is the handler for the payload that was sent by the server side configuration task.
+其中 `onMyData` 是服务器端配置任务发送的有效载荷(Payload)的处理程序。
 
-When the server receives this payload it will acknowledge the configuration task, and the next configuration task will be executed:
+当服务器收到此有效载荷(Payload)时，它将确认配置任务，并执行下一个配置任务：
 
 ```java
 public void onAck(AckPayload payload, IPayloadContext context) {
@@ -126,8 +126,8 @@ public void onAck(AckPayload payload, IPayloadContext context) {
 }
 ```
 
-Where `onAck` is the handler for the payload that was sent by the client.
+其中 `onAck` 是客户端发送的有效载荷(Payload)的处理程序。
 
-## Stalling the login process
+## 停滞登录过程(Stalling the login process)
 
-When the configuration is not acknowledged, then the server will wait forever, and the client will never join the game. So it is important to always acknowledge the configuration task, unless the configuration task failed, then you can disconnect the client.
+如果配置未得到确认，服务器将永远等待，客户端将永远无法加入游戏。因此，除非配置任务失败（此时可以断开客户端连接），否则始终确认配置任务非常重要。

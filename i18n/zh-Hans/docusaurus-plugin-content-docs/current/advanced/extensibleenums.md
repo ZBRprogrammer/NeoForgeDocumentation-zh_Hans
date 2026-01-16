@@ -15,7 +15,7 @@
 
 要创建新的枚举条目，需要创建一个JSON文件，并在`neoforge.mods.toml`中通过`[[mods]]`块的`enumExtensions`条目引用。指定的路径必须相对于`resources`目录：
 
-```
+``` java
 # In neoforge.mods.toml:
 [[mods]]
 ## The file is relative to the output directory of the resources, or the root path inside the jar when compiled
@@ -25,7 +25,7 @@ enumExtensions="META-INF/enumextensions.json"
 
 条目的定义包括目标枚举的类名、新字段的名称（必须以模组ID为前缀）、用于构造条目的构造函数的描述符以及传递给该构造函数的参数。
 
-```
+``` java
 {
     "entries": [
         {
@@ -62,7 +62,7 @@ enumExtensions="META-INF/enumextensions.json"
 }
 ```
 
-```
+``` java
 public class MyEnumParams {
     public static final EnumProxy<Rarity> CUSTOM_RARITY_ENUM_PROXY = new EnumProxy<>(
             Rarity.class, -1, "examplemod:custom", (UnaryOperator<Style>) style -> style.withItalic(true)
@@ -124,7 +124,7 @@ public class MyEnumParams {
 如果枚举实际添加了任何条目，`getExtensionInfo`方法将在运行时被转换以提供动态生成的`ExtensionInfo`。
 :::
 
-```
+``` java
 // This is an example, not an actual enum within Vanilla
 
 // The first argument must match the enum constant's ordinal

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f32b5ff3-55e4-4b45-b2b7-1f14fed0b466" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../advanced/accesstransformers.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../advanced/accesstransformers.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../advanced/extensibleenums.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../advanced/extensibleenums.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../advanced/featureflags.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../advanced/featureflags.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../blockentities/ber.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../blockentities/ber.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../blockentities/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../blockentities/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../blocks/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../blocks/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../blocks/states.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../blocks/states.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../concepts/events.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../concepts/events.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/config.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/config.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/debugprofiler.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/debugprofiler.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/gametest.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/gametest.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/keymappings.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/keymappings.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/resourcelocation.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/resourcelocation.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../misc/updatechecker.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../misc/updatechecker.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../networking/_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../networking/_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../networking/configuration-tasks.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../networking/configuration-tasks.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../networking/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../networking/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../networking/payload.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../networking/payload.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../networking/streamcodecs.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../networking/streamcodecs.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../rendering/_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rendering/_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../rendering/feature.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rendering/feature.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../rendering/particles.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rendering/particles.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../rendering/screens.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rendering/screens.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/i18n.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/i18n.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/models/datagen.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/models/datagen.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/models/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/models/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/models/items.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/models/items.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/models/modelloaders.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/models/modelloaders.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/models/modelsystem.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/models/modelsystem.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/particles.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/particles.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/sounds.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/sounds.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../client/textures.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../client/textures.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../_category_.json" beforeDir="false" afterPath="$PROJECT_DIR$/../_category_.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../advancements.md" beforeDir="false" afterPath="$PROJECT_DIR$/../advancements.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conditions.md" beforeDir="false" afterPath="$PROJECT_DIR$/../conditions.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../damagetypes.md" beforeDir="false" afterPath="$PROJECT_DIR$/../damagetypes.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../datamaps/builtin.md" beforeDir="false" afterPath="$PROJECT_DIR$/../datamaps/builtin.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../datamaps/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../datamaps/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../enchantments/builtin.md" beforeDir="false" afterPath="$PROJECT_DIR$/../enchantments/builtin.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../enchantments/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../enchantments/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom.md" beforeDir="false" afterPath="$PROJECT_DIR$/custom.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/glm.md" beforeDir="false" afterPath="$PROJECT_DIR$/glm.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lootconditions.md" beforeDir="false" afterPath="$PROJECT_DIR$/lootconditions.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lootfunctions.md" beforeDir="false" afterPath="$PROJECT_DIR$/lootfunctions.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../recipes/builtin.md" beforeDir="false" afterPath="$PROJECT_DIR$/../recipes/builtin.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../recipes/custom.md" beforeDir="false" afterPath="$PROJECT_DIR$/../recipes/custom.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../recipes/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../recipes/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../recipes/ingredients.md" beforeDir="false" afterPath="$PROJECT_DIR$/../recipes/ingredients.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tags.md" beforeDir="false" afterPath="$PROJECT_DIR$/../tags.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../worldgen/biomemodifier.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../worldgen/biomemodifier.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../../../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="38LiAx3yVqeUEA964vJ7gHSXGRW" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="f32b5ff3-55e4-4b45-b2b7-1f14fed0b466" name="更改" comment="" />
+      <created>1768585133265</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1768585133265</updated>
+      <workItem from="1768585149627" duration="591000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

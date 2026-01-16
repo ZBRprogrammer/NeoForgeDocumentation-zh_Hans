@@ -1,80 +1,80 @@
-# Advancements
+# 进度(Advancements)
 
-Advancements are quest-like tasks that can be achieved by the player. Advancements are awarded based on advancement criteria, and can run behavior when completed.
+进度是玩家可以完成的类似任务的目标。进度基于进度标准(advancement criteria)授予，并且可以在完成时运行特定行为。
 
-A new advancement can be added by creating a JSON file in your namespace's `advancement` subfolder. So for example, if we want to add an advancement named `example_name` for a mod with the mod id `examplemod`, it will be located at `data/examplemod/advancement/example_name.json`. An advancement's ID will be relative to the `advancement` directory, so for our example, it would be `examplemod:example_name`. Any name can be chosen, and the advancement will automatically be picked up by the game. Java code is only necessary if you want to add new criteria or trigger a certain criterion from code (see below).
+可以通过在您的命名空间(namespace)的`advancement`子文件夹中创建一个JSON文件来添加新的进度。例如，如果我们想为模组ID(mod id)为`examplemod`的模组添加一个名为`example_name`的进度，它将位于`data/examplemod/advancement/example_name.json`。进度的ID将相对于`advancement`目录，因此对于我们的例子，它将是`examplemod:example_name`。可以选择任何名称，游戏将自动拾取该进度。仅当您想添加新标准或从代码触发特定标准时才需要Java代码（见下文）。
 
-## Specification
+## 规范(Specification)
 
-An advancement JSON file may contain the following entries:
+一个进度JSON文件可能包含以下条目：
 
-- `parent`: The parent advancement ID of this advancement. Circular references will be detected and cause a loading failure. Optional; if absent, this advancement will be considered a root advancement. Root advancements are advancements that have no parent set. They will be the root of their [advancement tree][tree].
-- `display`: The object holding several properties used for display of the advancement in the advancement GUI. Optional; if absent, this advancement will be invisible, but can still be triggered.
-    - `icon`: A [JSON representation of an item stack][itemstackjson].
-    - `title`: A [text component][text] to use as the advancement's title.
-    - `description`: A [text component][text] to use as the advancement's description.
-    - `frame`: The frame type of the advancement. Accepts `challenge`, `goal` and `task`. Optional, defaults to `task`.
-    - `background`: The texture to use for the tree background. This is relative to the `textures` directory, i.e. the `textures/` folder prefix should not be included. Optional, defaults to the missing texture. Only effective on root advancements.
-    - `show_toast`: Whether to show a toast in the top right corner on completion. Optional, defaults to true.
-    - `announce_to_chat`: Whether to announce advancement completion in the chat. Optional, defaults to true.
-    - `hidden`: Whether to hide this advancement and all children from the advancement GUI until it is completed. Has no effect on root advancements themselves, but still hides all of their children. Optional, defaults to false.
-- `criteria`: A map of criteria this advancement should track. Every criterion is identified by its map key. A list of criteria triggers added by Minecraft can be found in the `CriteriaTriggers` class, and the JSON specifications can be found on the [Minecraft Wiki][triggers]. For implementing your own criteria or triggering criteria from code, see below.
-- `requirements`: A list of lists that determine what criteria are required. This is a list of OR lists that are ANDed together, or in other words, every sublist must have at least one criterion matching. Optional, defaults to all criteria being required.
-- `rewards`: An object representing the rewards to grant when this advancement is completed. Optional, all values of the object are also optional.
-    - `experience`: The amount of experience to award to the player.
-    - `recipes`: A list of [recipe] IDs to unlock.
-    - `loot`: A list of [loot tables][loottable] to roll and give to the player.
-    - `function`: A [function] to run. If you want to run multiple functions, create a wrapper function that runs all other functions.
-- `sends_telemetry_event`: Determines whether telemetry data should be collected when this advancement is completed or not. Only actually does anything if in the `minecraft` namespace. Optional, defaults to false.
-- `neoforge:conditions`: NeoForge-added. A list of [conditions] that must be passed for the advancement to be loaded. Optional.
+- `parent`：此进度的父进度ID。循环引用将被检测并导致加载失败。可选；如果不存在，此进度将被视为根进度(root advancement)。根进度是未设置父级的进度。它们将是其[进度树][tree]的根。
+- `display`：包含用于在进度GUI中显示进度的多个属性的对象。可选；如果不存在，此进度将不可见，但仍可被触发。
+    - `icon`：一个[物品堆叠的JSON表示][itemstackjson]。
+    - `title`：用作进度标题的[文本组件][text]。
+    - `description`：用作进度描述的[文本组件][text]。
+    - `frame`：进度的边框类型。接受`challenge`、`goal`和`task`。可选，默认为`task`。
+    - `background`：用于树背景的纹理。这是相对于`textures`目录的，即不应包含`textures/`文件夹前缀。可选，默认为缺失纹理(missing texture)。仅对根进度有效。
+    - `show_toast`：完成时是否在右上角显示提示(toast)。可选，默认为true。
+    - `announce_to_chat`：是否在聊天中宣布进度完成。可选，默认为true。
+    - `hidden`：是否在完成之前从进度GUI中隐藏此进度及其所有子进度。对根进度本身无影响，但仍会隐藏其所有子进度。可选，默认为false。
+- `criteria`：此进度应跟踪的标准(criteria)映射。每个标准由其映射键标识。Minecraft添加的标准触发器列表可在`CriteriaTriggers`类中找到，JSON规范可在[Minecraft Wiki][triggers]上找到。有关实现自定义标准或从代码触发标准，请参见下文。
+- `requirements`：决定需要哪些标准的列表的列表。这是一个OR列表的列表，它们被AND在一起，换句话说，每个子列表必须至少有一个匹配的标准。可选，默认为所有标准都是必需的。
+- `rewards`：表示完成此进度时授予的奖励的对象。可选，对象的所有值也是可选的。
+    - `experience`：授予玩家的经验值数量。
+    - `recipes`：要解锁的[配方(recipe)]ID列表。
+    - `loot`：要掷骰并给予玩家的[战利品表(loot tables)][loottable]列表。
+    - `function`：要运行的[函数(function)]。如果要运行多个函数，请创建一个运行所有其他函数的包装函数。
+- `sends_telemetry_event`：决定完成此进度时是否应收集遥测数据。仅当在`minecraft`命名空间内时才实际生效。可选，默认为false。
+- `neoforge:conditions`：NeoForge添加。必须通过才能使进度加载的[条件(conditions)]列表。可选。
 
-### Advancement Trees
+### 进度树(Advancement Trees)
 
-Advancement files may be grouped in directories, which tells the game to create multiple advancement tabs. One advancement tab may contain one or more advancement trees, depending on the amount of root advancements. Empty advancement tabs will automatically be hidden.
+进度文件可以分组在目录中，这会告诉游戏创建多个进度选项卡。一个进度选项卡可能包含一个或多个进度树，具体取决于根进度的数量。空的进度选项卡将自动隐藏。
 
-:::tip
-Minecraft only ever has one root advancement per tab, and always calls the root advancement `root`. It is suggested to follow this practice.
+:::提示
+Minecraft每个选项卡始终只有一个根进度，并且始终将根进度称为`root`。建议遵循此做法。
 :::
 
-## Criteria Triggers
+## 标准触发器(Criteria Triggers)
 
-To unlock an advancement, the specified criteria must be met. Criteria are tracked through triggers, which are executed from code when the associated action happens (e.g. the `player_killed_entity` trigger executes when the player kills the specified [entity]). Any time an advancement is loaded into the game, the criteria defined are read and added as listeners to the trigger. When a trigger is executed, all advancements that have a listener for the corresponding criterion are rechecked for completion. If the advancement is completed, the listeners are removed.
+要解锁进度，必须满足指定的标准。标准通过触发器(triggers)跟踪，当关联的操作发生时，触发器会从代码中执行（例如，当玩家杀死指定的[实体(entity)]时，`player_killed_entity`触发器执行）。每当进度加载到游戏中时，都会读取定义的标准并将其作为监听器添加到触发器。当触发器执行时，所有具有相应标准监听器的进度都会重新检查是否完成。如果进度完成，则移除监听器。
 
-Custom criteria triggers are made up of two parts: the trigger, which is activated in code by calling `#trigger`, and the instance which defines the conditions under which the trigger should award the criterion. The trigger extends `SimpleCriterionTrigger<T>` while the instance implements `SimpleCriterionTrigger.SimpleInstance`. The generic value `T` represents the trigger instance type.
+自定义标准触发器由两部分组成：触发器（通过在代码中调用`#trigger`来激活）和定义触发器应在何种条件下授予标准的实例(instance)。触发器扩展`SimpleCriterionTrigger<T>`，而实例实现`SimpleCriterionTrigger.SimpleInstance`。泛型值`T`代表触发器实例类型。
 
 ### `SimpleCriterionTrigger.SimpleInstance`
 
-A `SimpleCriterionTrigger.SimpleInstance` represents a single criterion defined in the `criteria` object. Trigger instances are responsible for holding the defined conditions, and returning whether the inputs match the condition.
+`SimpleCriterionTrigger.SimpleInstance`表示`criteria`对象中定义的单个标准。触发器实例负责保存定义的条件，并返回输入是否匹配条件。
 
-Conditions are usually passed in through the constructor. The `SimpleCriterionTrigger.SimpleInstance` interface requires only one function, called `#player`, which returns the conditions the player must meet as an `Optional<ContextAwarePredicate>`. If the subclass is a record with a `player` parameter of this type (as below), the automatically generated `#player` method will suffice.
+条件通常通过构造函数传递。`SimpleCriterionTrigger.SimpleInstance`接口只需要一个函数，称为`#player`，它返回玩家必须满足的条件作为`Optional<ContextAwarePredicate>`。如果子类是具有此类型`player`参数的记录(record)（如下所示），则自动生成的`#player`方法就足够了。
 
 ```java
-public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player/*, other parameters here*/)
+public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player/*, 其他参数在此*/)
         implements SimpleCriterionTrigger.SimpleInstance {}
 ```
 
-Typically, trigger instances have static helper methods which construct the full `Criterion<T>` object from the arguments to the instance. This allows these instances to be easily created during data generation, but are optional.
+通常，触发器实例具有静态辅助方法，这些方法从实例的参数构造完整的`Criterion<T>`对象。这允许在数据生成期间轻松创建这些实例，但它们是可选的。
 
 ```java
-// In this example, EXAMPLE_TRIGGER is a DeferredHolder<CriterionTrigger<?>, ExampleTrigger>.
-// See below for how to register triggers.
+// 在这个例子中，EXAMPLE_TRIGGER 是 DeferredHolder<CriterionTrigger<?>, ExampleTrigger>。
+// 有关如何注册触发器，请参见下文。
 public static Criterion<ExampleTriggerInstance> instance(ContextAwarePredicate player, ItemPredicate item) {
     return EXAMPLE_TRIGGER.get().createCriterion(new ExampleTriggerInstance(Optional.of(player), item));
 }
 ```
 
-Finally, a method should be added which takes in the current data state and returns whether the user has met the necessary conditions. The conditions of the player are already checked through `SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`. Most trigger instances call this method `#matches`.
+最后，应添加一个方法，该方法接受当前数据状态并返回用户是否满足必要条件。玩家的条件已经通过`SimpleCriterionTrigger#trigger(ServerPlayer, Predicate)`检查。大多数触发器实例将此方法称为`#matches`。
 
 ```java
-// Let's assume we have an additional ItemPredicate parameter. This can be whatever you need.
-// For example, this could also be a Predicate<LivingEntity>.
+// 假设我们有一个额外的 ItemPredicate 参数。这可以是您需要的任何内容。
+// 例如，这也可能是 Predicate<LivingEntity>。
 public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate predicate)
         implements SimpleCriterionTrigger.SimpleInstance {
-    // This method is unique for each instance and is as such not overridden.
-    // The parameter may be whatever you need to properly match, for example, this could also be a LivingEntity.
-    // If you need no context other than the player, this may also take no parameters at all.
+    // 此方法对每个实例是唯一的，因此不被重写。
+    // 参数可以是您需要正确匹配的任何内容，例如，这也可能是 LivingEntity。
+    // 如果您只需要玩家以外的上下文，此方法也可以完全不接受参数。
     public boolean matches(ItemStack stack) {
-        // Since ItemPredicate matches a stack, we use a stack as the input here.
+        // 由于 ItemPredicate 匹配堆叠，我们在这里使用堆叠作为输入。
         return this.predicate.test(stack);
     }
 }
@@ -82,23 +82,23 @@ public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player, Ite
 
 ### `SimpleCriterionTrigger`
 
-The `SimpleCriterionTrigger<T>` implementation has two purposes: supplying a method to check trigger instances and run attached listeners on success, and specifying a [codec] to serialize the trigger instance (`T`).
+`SimpleCriterionTrigger<T>`实现有两个目的：提供检查触发器实例并在成功时运行附加监听器的方法，以及指定用于序列化触发器实例(`T`)的[编解码器(codec)]。
 
-First, we want to add a method that takes the inputs we need and calls `SimpleCriterionTrigger#trigger` to properly handle checking all listeners. Most trigger instances also name this method `#trigger`. Reusing our example trigger instance from above, our trigger would look something like this:
+首先，我们想添加一个方法，该方法接受我们需要的输入并调用`SimpleCriterionTrigger#trigger`来正确处理检查所有监听器。大多数触发器实例也将此方法命名为`#trigger`。重用我们上面的示例触发器实例，我们的触发器将如下所示：
 
 ```java
 public class ExampleCriterionTrigger extends SimpleCriterionTrigger<ExampleTriggerInstance> {
-    // This method is unique for each trigger and is as such not a method to override
+    // 此方法对每个触发器是唯一的，因此不是要重写的方法
     public void trigger(ServerPlayer player, ItemStack stack) {
         this.trigger(player,
-                // The condition checker method within the SimpleCriterionTrigger.SimpleInstance subclass
+                // SimpleCriterionTrigger.SimpleInstance 子类内部的条件检查器方法
                 triggerInstance -> triggerInstance.matches(stack)
         );
     }
 }
 ```
 
-Triggers must be registered to the `Registries.TRIGGER_TYPE` [registry][registration]:
+触发器必须注册到`Registries.TRIGGER_TYPE` [注册表(registry)][registration]：
 
 ```java
 public static final DeferredRegister<CriterionTrigger<?>> TRIGGER_TYPES =
@@ -108,10 +108,10 @@ public static final Supplier<ExampleCriterionTrigger> EXAMPLE_TRIGGER =
         TRIGGER_TYPES.register("example", ExampleCriterionTrigger::new);
 ```
 
-And then, triggers must define a [codec] to serialize and deserialize the trigger instance by overriding `#codec`. This codec is typically created as a constant within the instance implementation.
+然后，触发器必须通过重写`#codec`来定义用于序列化和反序列化触发器实例的[编解码器(codec)]。此编解码器通常在实例实现中创建为常量。
 
 ```java
-public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player/*, other parameters here*/)
+public record ExampleTriggerInstance(Optional<ContextAwarePredicate> player/*, 其他参数在此*/)
         implements SimpleCriterionTrigger.SimpleInstance {
     public static final Codec<ExampleTriggerInstance> CODEC = ...;
 
@@ -128,7 +128,7 @@ public class ExampleTrigger extends SimpleCriterionTrigger<ExampleTriggerInstanc
 }
 ```
 
-For the earlier example of a record with a `ContextAwarePredicate` and an `ItemPredicate`, the codec could be:
+对于之前带有`ContextAwarePredicate`和`ItemPredicate`的记录示例，编解码器可以是：
 
 ```java
 public static final Codec<ExampleTriggerInstace> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -137,145 +137,144 @@ public static final Codec<ExampleTriggerInstace> CODEC = RecordCodecBuilder.crea
 ).apply(instance, ExampleTriggerInstance::new));
 ```
 
-### Calling Criterion Triggers
+### 调用标准触发器(Calling Criterion Triggers)
 
-Whenever the action being checked is performed, the `#trigger` method defined by our `SimpleCriterionTrigger` subclass should be called. Of course, you can also call on vanilla triggers, which are found in `CriteriaTriggers`.
+每当执行被检查的操作时，应该调用由我们的`SimpleCriterionTrigger`子类定义的`#trigger`方法。当然，您也可以调用在`CriteriaTriggers`中找到的原版触发器。
 
 ```java
-// In some piece of code where the action is being performed
-// Again, EXAMPLE_TRIGGER is a supplier for the registered instance of the custom criterion trigger
+// 在执行操作的某段代码中
+// 再次说明，EXAMPLE_TRIGGER 是已注册的自定义标准触发器实例的提供者(Supplier)
 public void performExampleAction(ServerPlayer player, additionalContextParametersHere) {
-    // Run code to perform action here
+    // 在此处运行执行操作的代码
     EXAMPLE_TRIGGER.get().trigger(player, additionalContextParametersHere);
 }
 ```
 
-## Data Generation
+## 数据生成(Data Generation)
 
-Advancements can be [datagenned][datagen] using an `AdvancementProvider`. An `AdvancementProvider` accepts a list of `AdvancementSubProviders`s, which actually generate the advancements using `Advancement.Builder`.
+进度可以使用`AdvancementProvider`进行[数据生成(datagenned)][datagen]。`AdvancementProvider`接受`AdvancementSubProviders`s列表，这些子提供者实际上使用`Advancement.Builder`生成进度。
 
-To start, create an instance of `AdvancementProvider` within one of the `GatherDataEvent`s:
+首先，在其中一个`GatherDataEvent`s中创建`AdvancementProvider`的实例：
 
 ```java
-@SubscribeEvent // on the mod event bus
+@SubscribeEvent // 在模组事件总线(mod event bus)上
 public static void gatherData(GatherDataEvent.Client event) {
-    // Call event.createDatapackRegistryObjects(...) first if adding datapack objects
+    // 如果添加数据包对象，首先调用 event.createDatapackRegistryObjects(...)
 
     event.createProvider((output, lookupProvider) -> new AdvancementProvider(
         output, lookupProvider,
-        // Add generators here
+        // 在此处添加生成器
         List.of(...)
     ));
 
-     // Other providers
+     // 其他提供者
 }
 ```
 
-Now, the next step is to fill the list with our generators. To do so, we can either add generators as classes or lambdas, and then add an instance of each of them to the currently empty list in the constructor parameter.
+现在，下一步是用我们的生成器填充列表。为此，我们可以将生成器添加为类或lambda，然后将每个生成器的实例添加到构造函数参数中当前为空的列表中。
 
 ```java
-// Class example
+// 类示例
 public class MyAdvancementGenerator implements AdvancementSubProvider {
 
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
-        // Generate your advancements here.
+        // 在此处生成您的进度。
     }
 }
 
-// Method Example
+// 方法示例
 public class ExampleClass {
 
-    // Matches the parameters provided by AdvancementSubProvider#generate
+    // 匹配 AdvancementSubProvider#generate 提供的参数
     public static void generateExampleAdvancements(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
-        // Generate your advancements here.
+        // 在此处生成您的进度。
     }
 }
 
-// In one of the `GatherDataEvent`s
+// 在其中一个 `GatherDataEvent`s 中
 event.createProvider((output, lookupProvider) -> new AdvancementProvider(
     output, lookupProvider,
-    // Add generators here
+    // 在此处添加生成器
     List.of(
-        // Add an instance of our generator to the list parameter. This can be done as many times as you want.
-        // Having multiple generators is purely for organization, all functionality can be achieved with a single generator.
+        // 将我们的生成器的实例添加到列表参数中。可以根据需要执行多次。
+        // 拥有多个生成器纯粹是为了组织，所有功能都可以通过单个生成器实现。
         new MyAdvancementGenerator(),
         ExampleClass::generateExampleAdvancements
     )
 ));
 ```
 
-To generate an advancement, you want to use an `Advancement.Builder`:
+要生成进度，您需要使用`Advancement.Builder`：
 
 ```java
-// All methods follow the builder pattern, meaning that chaining is possible and encouraged.
-// For better readability of the explanations, chaining will not be done here.
+// 所有方法都遵循构建器模式，意味着可以且鼓励链式调用。
+// 为了解释的可读性，这里不会进行链式调用。
 
-// Create an advancement builder using the static #advancement() method.
-// Using #advancement() automatically enables telemetry events. If you do not want this,
-// #recipeAdvancement() can be used instead, there are no other functional differences.
+// 使用静态方法 #advancement() 创建进度构建器。
+// 使用 #advancement() 会自动启用遥测事件。如果不需要此功能，
+// 可以使用 #recipeAdvancement()，没有其他功能差异。
 Advancement.Builder builder = Advancement.Builder.advancement();
 
-// Sets the parent of the advancement. You can use another advancement you have already generated,
-// or create a placeholder advancement using the static AdvancementSubProvider#createPlaceholder method.
+// 设置进度的父级。您可以使用已经生成的另一个进度，
+// 或使用静态方法 AdvancementSubProvider#createPlaceholder 创建占位符进度。
 builder.parent(AdvancementSubProvider.createPlaceholder("minecraft:story/root"));
 
-// Sets the display properties of the advancement. This can either be a DisplayInfo object,
-// or pass in the values directly. If values are passed in directly, a DisplayInfo object will be created for you.
+// 设置进度的显示属性。这可以是 DisplayInfo 对象，
+// 或者直接传入值。如果直接传入值，将为您创建 DisplayInfo 对象。
 builder.display(
-        // The advancement icon. Can be an ItemStack or an ItemLike.
+        // 进度图标。可以是 ItemStack 或 ItemLike。
         new ItemStack(Items.GRASS_BLOCK),
-        // The advancement title and description. Don't forget to add translations for these!
+        // 进度标题和描述。别忘了为这些添加翻译！
         Component.translatable("advancements.examplemod.example_advancement.title"),
         Component.translatable("advancements.examplemod.example_advancement.description"),
-        // The background texture. Use null if you don't want a background texture (for non-root advancements).
+        // 背景纹理。如果不需要背景纹理（对于非根进度），请使用 null。
         null,
-        // The frame type. Valid values are AdvancementType.TASK, CHALLENGE, or GOAL.
+        // 边框类型。有效值为 AdvancementType.TASK、CHALLENGE 或 GOAL。
         AdvancementType.GOAL,
-        // Whether to show the advancement toast or not.
+        // 是否显示进度提示(toast)。
         true,
-        // Whether to announce the advancement into chat or not.
+        // 是否在聊天中宣布进度。
         true,
-        // Whether the advancement should be hidden or not.
+        // 进度是否应隐藏。
         false
 );
 
-// An advancement reward builder. Can be created with any of the four reward types, and further rewards
-// can be added using the methods prefixed with add. This can also be built beforehand,
-// and the resulting AdvancementRewards can then be reused across multiple advancement builders.
+// 进度奖励构建器。可以用四种奖励类型中的任何一种创建，并且可以使用以 add 为前缀的方法添加更多奖励。
+// 这也可以预先构建，然后得到的 AdvancementRewards 可以在多个进度构建器中重用。
 builder.rewards(
-    // Alternatively, use addExperience() to add to an existing builder.
+    // 或者，使用 addExperience() 添加到现有的构建器。
     AdvancementRewards.Builder.experience(100)
-    // Alternatively, use loot() to create a new builder.
+    // 或者，使用 loot() 创建新的构建器。
     .addLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo")))
-    // Alternatively, use recipe() to create a new builder.
+    // 或者，使用 recipe() 创建新的构建器。
     .addRecipe(ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ingot")))
-    // Alternatively, use function() to create a new builder.
+    // 或者，使用 function() 创建新的构建器。
     .runs(ResourceLocation.fromNamespaceAndPath("examplemod", "example_function"))
 );
 
-// Adds a criterion with the given name to the advancement. Use the corresponding trigger instance's static method.
+// 将具有给定名称的标准添加到进度中。使用相应触发器实例的静态方法。
 builder.addCriterion("pickup_dirt", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIRT));
 
-// Adds a requirements handler. Minecraft natively provides allOf() and anyOf(), more complex requirements
-// must be implemented manually. Only has an effect with two or more criteria.
+// 添加需求(requirements)处理器。Minecraft 原生提供 allOf() 和 anyOf()，更复杂的需求
+// 必须手动实现。仅在有两个或更多标准时才有效果。
 builder.requirements(AdvancementRequirements.allOf(List.of("pickup_dirt")));
 
-// Save the advancement to disk, using the given resource location. This returns an AdvancementHolder,
-// which may be stored in a variable and used as a parent by other advancement builders.
+// 使用给定的资源位置(ResourceLocation)将进度保存到磁盘。这将返回一个 AdvancementHolder，
+// 可以存储在变量中并被其他进度构建器用作父级。
 builder.save(saver, ResourceLocation.fromNamespaceAndPath("examplemod", "example_advancement"));
 ```
 
-[codec]: ../../datastorage/codecs.md
-[conditions]: conditions.md
-[datagen]: ../index.md#data-generation
-[entity]: ../../entities/index.md
-[function]: https://minecraft.wiki/w/Function_(Java_Edition)
-[itemstackjson]: ../../items/index.md#json-representation
-[loottable]: loottables/index.md
-[recipe]: recipes/index.md
-[registration]: ../../concepts/registries.md#methods-for-registering
-[root]: #root-advancements
-[text]: ../client/i18n.md#components
-[tree]: #advancement-trees
-[triggers]: https://minecraft.wiki/w/Advancement/JSON_format#List_of_triggers
+[编解码器(codec)]: ../../datastorage/codecs.md
+[条件(conditions)]: conditions.md
+[数据生成(datagen)]: ../index.md#data-generation
+[实体(entity)]: ../../entities/index.md
+[函数(function)]: https://minecraft.wiki/w/Function_(Java_Edition)
+[物品堆叠JSON表示(itemstackjson)]: ../../items/index.md#json-representation
+[战利品表(loottable)]: loottables/index.md
+[配方(recipe)]: recipes/index.md
+[注册(registration)]: ../../concepts/registries.md#methods-for-registering
+[根进度(root)]: #root-advancements
+[文本(text)]: ../client/i18n.md#components
+[进度树(tree)]: #advancement-trees
+[触发器(triggers)]: https://minecraft.wiki/w/Advancement/JSON_format#List_of_triggers

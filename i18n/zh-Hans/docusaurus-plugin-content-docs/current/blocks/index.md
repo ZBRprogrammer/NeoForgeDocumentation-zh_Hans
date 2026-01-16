@@ -16,14 +16,14 @@
 
 那么现在，让我们注册我们的方块：
 
-```
+``` java
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BLOCK = BLOCKS.register("my_block", registryName -> new Block(...));
 ```
 
 注册方块后，对新`my_block`的所有引用都应使用此常量。例如，如果您想检查给定位置的方块是否为`my_block`，代码将如下所示：
 
-```
+``` java
 level.getBlockState(position) // returns the blockstate placed in the given level (world) at the given position
     //highlight-next-line
     .is(MyBlockRegistrationClass.MY_BLOCK);
@@ -43,7 +43,7 @@ level.getBlockState(position) // returns the blockstate placed in the given leve
 
 如前所述，我们首先创建我们的`DeferredRegister.Blocks`：
 
-```
+``` java
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
 ```
 
@@ -66,7 +66,7 @@ public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBloc
 
 因此，一个简单的实现将如下所示：
 
-```
+``` java
 //BLOCKS is a DeferredRegister.Blocks
 public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
     "my_better_block", 
@@ -101,7 +101,7 @@ public static final DeferredBlock<Block> MY_BETTER_BLOCK = BLOCKS.register(
 
 如果方块子类只接受`BlockBehaviour.Properties`，则可以使用`BlockBehaviour#simpleCodec`来创建`MapCodec`。
 
-```
+``` java
 // For some block subclass
 public class SimpleBlock extends Block {
     public SimpleBlock(BlockBehavior.Properties properties) {
@@ -125,7 +125,7 @@ public static final Supplier<MapCodec<SimpleBlock>> SIMPLE_CODEC = REGISTRAR.reg
 
 如果方块子类包含更多参数，则应使用[`RecordCodecBuilder#mapCodec`][codec]来创建`MapCodec`，为`BlockBehaviour.Properties`参数传递`BlockBehaviour#propertiesCodec`。
 
-```
+``` java
 // For some block subclass
 public class ComplexBlock extends Block {
     public ComplexBlock(int value, BlockBehavior.Properties properties) {
@@ -164,7 +164,7 @@ public static final Supplier<MapCodec<ComplexBlock>> COMPLEX_CODEC = REGISTRAR.r
 
 我们已经讨论了如何创建`DeferredRegister.Blocks`[上文][above]，以及它返回`DeferredBlock`。现在，让我们看看这个专门的`DeferredRegister`还提供了哪些其他实用工具。让我们从`#registerBlock`开始：
 
-```
+``` java
 public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yourmodid");
 
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.register(
@@ -186,7 +186,7 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerBlock(
 
 如果你想使用`Block::new`，你可以完全省略工厂：
 
-```
+``` java
 public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock(
     "example_block",
     BlockBehaviour.Properties.of() // The properties to use.
@@ -235,7 +235,7 @@ public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBl
 
 或者，对于那些喜欢伪代码的人：
 
-```
+``` java
 leftClick();
 initiatingStage();
 while (leftClickIsBeingHeld()) {
@@ -291,7 +291,7 @@ while (leftClickIsBeingHeld()) {
 
 挖掘速度根据方块的硬度、使用的[工具][tool]的速度以及几个实体[属性][attributes]按照以下规则计算：
 
-```
+``` java
 // This will return the tool's mining speed, or 1 if the held item is either empty, not a tool,
 // or not applicable for the block being broken.
 float destroySpeed = item.getDestroySpeed(blockState);

@@ -14,7 +14,7 @@
 
 要创建新的功能标志(Feature Flags)，需要创建一个JSON文件，并在`neoforge.mods.toml`文件中通过`[[mods]]`块内的`featureFlags`条目引用。指定的路径必须相对于`resources`目录：
 
-```
+``` java
 # In neoforge.mods.toml:
 [[mods]]
     # The file is relative to the output directory of the resources, or the root path inside the jar when compiled
@@ -24,7 +24,7 @@
 
 条目的定义包括一个功能标志(Feature Flag)名称列表，这些名称将在游戏初始化期间加载和注册。
 
-```
+``` java
 {
     "flags": [
         // Identifier of a Feature flag to be registered
@@ -37,7 +37,7 @@
 
 可以通过`FeatureFlagRegistry.getFlag(ResourceLocation)`获取已注册的功能标志(Feature Flag)。这可以在您模组初始化的任何时间完成，建议将标志存储在某个地方以备将来使用，而不是每次需要时都查找注册表。
 
-```
+``` java
 // Look up the 'examplemod:experimental' Feature flag
 public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(ResourceLocation.fromNamespaceAndPath("examplemod", "experimental"));
 ```
@@ -68,7 +68,7 @@ public static final FeatureFlag EXPERIMENTAL = FeatureFlags.REGISTRY.getFlag(Res
 - `药水(Potion)`: `Potion#requiredFeatures`
 - `状态效果(MobEffect)`: `MobEffect#requiredFeatures`
 
-```
+``` java
 // These elements will only become available once the 'EXPERIMENTAL' flag is enabled
 
 // Item
@@ -128,7 +128,7 @@ DeferredHolder<Potion, ExperimentalPotion> EXPERIMENTAL_POTION = POTIONS.registe
 
 要验证功能是否应启用，您必须首先获取已启用功能的集合。这可以通过多种方式完成，但常见且推荐的方法是`LevelReader#enabledFeatures`。
 
-```
+``` java
 level.enabledFeatures(); // from a 'LevelReader' instance
 entity.level().enabledFeatures(); // from a 'Entity' instance
 
@@ -145,7 +145,7 @@ server.getWorldData().enabledFeatures();
 `ItemStack`有一个特殊的`isItemEnabled(FeatureFlagSet)`方法。这是为了即使基础`Item`所需的功能与启用的功能不匹配，空堆栈也被视为已启用。建议在可能的情况下优先使用此方法而非`Item#isEnabled`。
 :::
 
-```
+``` java
 requiredFeatures.isSubsetOf(enabledFeatures);
 featureElement.isEnabled(enabledFeatures);
 itemStack.isItemEnabled(enabledFeatures);
@@ -161,7 +161,7 @@ _另请参阅：[资源包](../resources/index.md#assets)、[数据包](../resou
 此文件与您模组`resources/`目录中的文件不同。此文件定义了一个全新的功能包，因此必须位于其自己的文件夹中。
 :::
 
-```
+``` java
 {
     "features": {
         "enabled": [
@@ -180,7 +180,7 @@ _另请参阅：[资源包](../resources/index.md#assets)、[数据包](../resou
 
 内置包与您的模组捆绑在一起，并通过`AddPackFindersEvent`事件提供给游戏。
 
-```
+``` java
 @SubscribeEvent // on the mod event bus
 public static void addFeaturePacks(final AddPackFindersEvent event) {
     event.addPackFinders(
@@ -260,7 +260,7 @@ _另请参阅：[数据生成(Datagen)][../resources/index.md#data-generation]_
 
 功能包(Feature Packs)可以在常规的模组数据生成期间生成。这最好与内置包结合使用，但也可以将生成的结果压缩并作为外部包共享。只需选择一种方式，即不要同时将其作为外部包提供并作为内置包捆绑。
 
-```
+``` java
 @SubscribeEvent // on the mod event bus
 public static void gatherData(final GatherDataEvent.Client event) {
     DataGenerator generator = event.getGenerator();

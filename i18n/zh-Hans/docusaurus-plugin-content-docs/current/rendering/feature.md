@@ -1,70 +1,71 @@
 ---
 sidebar_position: 1
 ---
-# Features
 
-A rendering feature defines a set of objects not baked into the level geometry, such as entities, text, and particles. These objects typically have a dynamic position, so things like falling or held blocks and items also fall into this category. The purpose of the feature renderer is then to better batch and order the objects being rendered to the screen. The feature renderer is broken into two phases: the submission phase, where all features are collected; and the rendering phases, where the collected features are rendered.
+# 特性 (Features)
 
-## Submitting Features
+渲染特性 (rendering feature) 定义了一组未烘焙到关卡几何体中的对象，例如实体 (entities)、文本 (text) 和粒子 (particles)。这些对象通常具有动态位置，因此像掉落或手持的方块 (blocks) 和物品 (items) 也属于此类。特性渲染器 (feature renderer) 的目的是为了更好地批处理和排序要渲染到屏幕上的对象。特性渲染器分为两个阶段：提交阶段 (submission phase)，收集所有特性；以及渲染阶段 (rendering phases)，渲染收集到的特性。
 
-Feature submission is typically handled by the underlying subsystem responsible for those objects: [`EntityRenderer` for entities][entities], [`BlockEntityRenderer` for block entities][blockentities], [`ParticleGroupRenderState` for particles`][particles], etc. Each provides their own `submit` method, usually taking in some general render state of the object. The necessary elements are then submitted through the `SubmitNodeCollector` and stored in a `SubmitNodeCollection` tree map for rendering.
+## 提交特性 (Submitting Features)
 
-The following methods are made available through the collector, in the order they are ultimately rendered:
+特性提交通常由负责这些对象的底层子系统处理：[`EntityRenderer` 用于实体 (entities)][entities]、[`BlockEntityRenderer` 用于方块实体 (block entities)][blockentities]、[`ParticleGroupRenderState` 用于粒子 (particles)`][particles] 等。每个子系统都提供自己的 `submit` 方法，通常传入对象的一些通用渲染状态 (render state)。然后通过 `SubmitNodeCollector` 提交必要的元素，并存储在 `SubmitNodeCollection` 树状映射 (tree map) 中以供渲染。
 
-| Method                 | Description                                                                                                |
+通过收集器 (collector) 可以使用以下方法，它们将按最终渲染的顺序执行：
+
+| 方法 (Method) | 描述 (Description) |
 |:----------------------:|:-----------------------------------------------------------------------------------------------------------|
-| `submitHitbox`         | A wireframe representing the bounding box and a line representing the view vector, typically for entities. |
-| `submitShadow`         | A number of black ovals for the desired radius, location, and opacity.                                     |
-| `submitNameTag`        | Text, transparency sorted.                                                                                 |
-| `submitText`           | Text.                                                                                                      |
-| `submitFlame`          | The flame overlay applied to entities.                                                                     |
-| `submitLeash`          | A 24-segment plane.                                                                                        |
-| `submitModel`          | `Model`s with render states, transparency sorted.                                                          |
-| `submitModelPart`      | `ModelPart`s.                                                                                              |
-| `submitBlock`          | A `BlockState` with baked lighting.                                                                        |
-| `submitMovingBlock`    | A `BlockState` with dynamic lighting.                                                                      |
-| `submitBlockModel`     | A `BlockStateModel` with baked lighting.                                                                   |
-| `submitItem`           | A deconstructed `ItemStackRenderState`.                                                                    |
-| `submitCustomGeometry` | An arbitrary method that defines the vertices uploaded to the buffer of the given `RenderType`.            |
-| `submitParticleGroup`  | A renderer for caching and writing a batch of particle quads.                                              |
+| `submitHitbox` | 表示包围盒 (bounding box) 的线框和表示视向向量 (view vector) 的线，通常用于实体。 |
+| `submitShadow` | 根据所需半径、位置和不透明度绘制的一系列黑色椭圆。 |
+| `submitNameTag` | 文本，按透明度排序。 |
+| `submitText` | 文本。 |
+| `submitFlame` | 应用于实体的火焰覆盖层。 |
+| `submitLeash` | 一个 24 段的平面。 |
+| `submitModel` | 带有渲染状态的 `Model`s，按透明度排序。 |
+| `submitModelPart` | `ModelPart`s。 |
+| `submitBlock` | 带有烘焙光照 (baked lighting) 的 `BlockState`。 |
+| `submitMovingBlock` | 带有动态光照 (dynamic lighting) 的 `BlockState`。 |
+| `submitBlockModel` | 带有烘焙光照的 `BlockStateModel`。 |
+| `submitItem` | 一个解构的 `ItemStackRenderState`。 |
+| `submitCustomGeometry` | 一个自定义方法，用于定义上传到给定 `RenderType` 缓冲区的顶点。 |
+| `submitParticleGroup` | 用于缓存和写入一批粒子四边形 (quads) 的渲染器。 |
 
 :::warning
-Each of the elements submitted to the collector should be considered immutable after the method is invoked. Some elements like the `PoseStack` are snapshotted at that time to prevent any further mutations.
+提交给收集器的每个元素在方法调用后都应被视为不可变。像 `PoseStack` 这样的一些元素会在那时进行快照 (snapshotted)，以防止任何进一步的修改。
 :::
 
-Technically, all of the methods listed above are part of the superinterface `OrderedSubmitNodeCollector`. This is because the collector can group the features into 'orders', which represent a single pass of the renderer. By default, all features are rendered on order 0, meaning they will be drawn based on the rendering order defined below. Orders with a smaller number will be rendered first while orders with a large number will be rendered after. `SubmitNodeCollector#order` can be used to specify the order of which the element is drawn:
+从技术上讲，上面列出的所有方法都是超接口 `OrderedSubmitNodeCollector` 的一部分。这是因为收集器可以将特性分组到“渲染顺序 (orders)”中，每个顺序代表渲染器的一次绘制过程 (pass)。默认情况下，所有特性都在顺序 0 上渲染，这意味着它们将根据下面定义的渲染顺序进行绘制。数字较小的顺序会先渲染，数字较大的顺序后渲染。可以使用 `SubmitNodeCollector#order` 来指定元素绘制的顺序：
 
 ```java
-// Assume we have some SubmitNodeCollector collector
+// 假设我们有一个 SubmitNodeCollector 收集器
 
-// This will be rendered on order 0.
+// 这将在顺序 0 上渲染。
 collector.submitModel(...);
 
-// This will be rendered before the model.
+// 这将在模型之前渲染。
 collector.order(-1).submitBlock(...);
 
-// This will be rendered after the model.
+// 这将在模型之后渲染。
 collector.order(1).submitParticleGroup(...);
 ```
 
-## Rendering Features
+## 渲染特性 (Rendering Features)
 
-Feature rendering is handled through the `FeatureRenderDispatcher` via `renderAllFeatures`, which renders the submitted objects within the `SubmitNodeStorage` holding the `SubmitNodeCollection` tree map. The dispatcher contains a list of renderer classes which are responsible for rendering a given type of submitted objects. For a given 'order', the features are rendered in the following order:
+特性渲染通过 `FeatureRenderDispatcher` 的 `renderAllFeatures` 方法处理，该方法渲染保存在包含 `SubmitNodeCollection` 树状映射的 `SubmitNodeStorage` 中的已提交对象。分发器包含一个渲染器类列表，这些类负责渲染给定类型的已提交对象。对于给定的“顺序”，特性按以下顺序渲染：
 
-* Shadows
-* Opaque models followed by sorted transparent models
-* Model parts
-* Entity flame overlays
-* Sorted transparent name tags followed by opaque name tags
-* Text
-* Hitboxes
-* Leashes
-* Items
-* Moving blocks, blocks, and then block models
-* Custom geometry
-* Particles
+* 阴影 (Shadows)
+* 不透明模型 (Opaque models)，然后是已排序的透明模型 (sorted transparent models)
+* 模型部件 (Model parts)
+* 实体火焰覆盖层 (Entity flame overlays)
+* 已排序的透明名称标签 (Sorted transparent name tags)，然后是不透明名称标签 (opaque name tags)
+* 文本 (Text)
+* 碰撞箱 (Hitboxes)
+* 栓绳 (Leashes)
+* 物品 (Items)
+* 移动方块、方块，然后是方块模型 (Moving blocks, blocks, and then block models)
+* 自定义几何体 (Custom geometry)
+* 粒子 (Particles)
 
-Once the features have finished rendering, the `SubmitNodeStorage` is cleared for its next use. The feature renderer may be called multiple times per frame, as not only is it used for the level, but also for the held item and [picture-in-picture gui renderer][gui]. Note that in those cases, `renderAllFeatures` is followed by `MultiBufferSource.BufferSource#endBatch` to the build the mesh and draw it to the buffer.
+特性渲染完成后，`SubmitNodeStorage` 将被清空以供下次使用。特性渲染器每帧可能被调用多次，因为它不仅用于关卡，还用于手持物品和[画中画 GUI 渲染器 (picture-in-picture gui renderer)][gui]。请注意，在这些情况下，调用 `renderAllFeatures` 后会接着调用 `MultiBufferSource.BufferSource#endBatch` 来构建网格 (mesh) 并将其绘制到缓冲区。
 
 [blockentities]: ../blockentities/ber.md#blockentityrenderer
 [entities]: ../entities/renderer.md#entity-renderers

@@ -4,7 +4,7 @@
 
 BER直接实现`BlockEntityRenderer`接口，并提交其[特性(features)]进行渲染：
 
-```
+``` java
 // The generic type in the superinterface should be set to what block entity
 // you are trying to render, along with its extracted render state. More on this below.
 public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity, MyBlockEntityRenderState> {
@@ -42,7 +42,7 @@ public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity,
 
 现在我们有了BER，还需要将其注册并连接到其所属的方块实体。这是在[`EntityRenderersEvent.RegisterRenderers`][event]中完成的，如下所示：
 
-```
+``` java
 @SubscribeEvent // on the mod event bus only on the physical client
 public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
     event.registerBlockEntityRenderer(
@@ -58,7 +58,7 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 
 如果您在BER中不需要提供者上下文，也可以移除构造函数：
 
-```
+``` java
 public class MyBlockEntityRenderer implements BlockEntityRenderer<MyBlockEntity, MyBlockEntityRenderState> {
     
     // ...
@@ -80,7 +80,7 @@ public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderer
 
 如上例所述，方块实体渲染状态用于从实际方块实体的值中提取用于渲染的值。它们在功能上是可变的、从`BlockEntityRenderState`扩展而来的数据存储对象：
 
-```
+``` java
 public class MyBlockEntityRenderState extends BlockEntityRenderState {
     public boolean value;
 }
