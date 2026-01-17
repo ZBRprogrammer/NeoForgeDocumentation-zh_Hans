@@ -1,34 +1,34 @@
 {
   "title": {
-    "message": "Homepage",
+    "message": "主页",
     "description": "The title in the navbar"
   },
   "logo.alt": {
-    "message": "NeoForged Logo",
+    "message": "NeoForged 徽标",
     "description": "The alt text of navbar logo"
   },
   "item.label.NeoForge Documentation": {
-    "message": "NeoForge Documentation",
+    "message": "NeoForge 文档",
     "description": "Navbar item with label NeoForge Documentation"
   },
   "item.label.Toolchain Features": {
-    "message": "Toolchain Features",
+    "message": "工具链特性",
     "description": "Navbar item with label Toolchain Features"
   },
   "item.label.Primers": {
-    "message": "Primers",
+    "message": "入门指南",
     "description": "Navbar item with label Primers"
   },
   "item.label.User Guide": {
-    "message": "User Guide",
+    "message": "用户指南",
     "description": "Navbar item with label User Guide"
   },
   "item.label.Modpack Development": {
-    "message": "Modpack Development",
+    "message": "整合包开发",
     "description": "Navbar item with label Modpack Development"
   },
   "item.label.Contributing": {
-    "message": "Contributing",
+    "message": "贡献",
     "description": "Navbar item with label Contributing"
   },
   "item.label.GitHub": {

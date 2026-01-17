@@ -1,14 +1,14 @@
 {
   "version.label": {
-    "message": "Next",
+    "message": "下一个",
     "description": "The label for version current"
   },
   "sidebar.toolchainSidebar.category.Plugins": {
-    "message": "Plugins",
-    "description": "The label for category Plugins in sidebar toolchainSidebar"
+    "message": "插件",
+    "description": "The label for category 'Plugins' in sidebar 'toolchainSidebar'"
   },
   "sidebar.toolchainSidebar.category.Dependencies": {
-    "message": "Dependencies",
-    "description": "The label for category Dependencies in sidebar toolchainSidebar"
+    "message": "依赖项",
+    "description": "The label for category 'Dependencies' in sidebar 'toolchainSidebar'"
   }
 }

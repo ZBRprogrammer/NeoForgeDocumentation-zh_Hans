@@ -1,53 +1,52 @@
-# ModDevGradle
+# ModDevGradle(ModDevGradle)
 
 ![ModDevGradle Logo](assets/moddevgradle_logo.svg)
 
-Check the NeoForged Project Listing for [latest releases](https://projects.neoforged.net/neoforged/ModDevGradle).
+查看 NeoForged 项目列表以获取[最新版本](https://projects.neoforged.net/neoforged/ModDevGradle)。
 
-If you are updating to a new major version of the plugin, refer to the [list of breaking changes](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/BREAKING_CHANGES.md).
+如果您要更新到插件的新主要版本，请参考[破坏性更改列表](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/BREAKING_CHANGES.md)。
 
-## Features
+## 特性(Features)
 
-- Uses the latest Gradle best practices and is compatible with Gradle 8.8
-- Creates the necessary artifacts to compile Minecraft mods for [NeoForge](https://neoforged.net/)
-- Runs the game from Gradle or IntelliJ for debugging and testing
-- Automatically creates and uses a development-friendly logging configuration for the testing the mod
-- Supports the [Gradle configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) to speed
-  up repeated runs of Gradle tasks
+- 使用最新的 Gradle 最佳实践，并与 Gradle 8.8 兼容
+- 创建必要的构件，以便为 [NeoForge](https://neoforged.net/) 编译 Minecraft 模组
+- 从 Gradle 或 IntelliJ 运行游戏以进行调试和测试
+- 自动创建并使用对开发友好的日志配置以测试模组
+- 支持 [Gradle 配置缓存](https://docs.gradle.org/current/userguide/configuration_cache.html)以加速重复的 Gradle 任务运行
 
-## Basic Usage for NeoForge Mods
+## 用于 NeoForge 模组的基本用法(Basic Usage for NeoForge Mods)
 
-In `gradle.properties`:
+在 `gradle.properties` 中：
 
 ```properties
-# Enable Gradle configuration cache if you'd like:
+# 如果需要，启用 Gradle 配置缓存：
 org.gradle.configuration-cache=true
 ```
 
-In `settings.gradle`:
+在 `settings.gradle` 中：
 
 ```groovy
 plugins {
-    // This plugin allows Gradle to automatically download arbitrary versions of Java for you
+    // 此插件允许 Gradle 自动为您下载任意版本的 Java
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 ```
 
-In `build.gradle`:
+在 `build.gradle` 中：
 
 ```groovy
 plugins {
-    // Apply the plugin. You can find the latest version at https://projects.neoforged.net/neoforged/ModDevGradle
+    // 应用插件。您可以在 https://projects.neoforged.net/neoforged/ModDevGradle 找到最新版本
     id 'net.neoforged.moddev' version '1.0.11'
 }
 
 neoForge {
-    // We currently only support NeoForge versions later than 21.0.x
-    // See https://projects.neoforged.net/neoforged/neoforge for the latest updates
+    // 我们目前仅支持晚于 21.0.x 的 NeoForge 版本
+    // 有关最新更新，请参阅 https://projects.neoforged.net/neoforged/neoforge
     version = "21.0.103-beta"
     
-    // Validate AT files and raise errors when they have invalid targets
-    // This option is false by default, but turning it on is recommended
+    // 验证 AT 文件并在其具有无效目标时引发错误
+    // 此选项默认为 false，但建议开启
     validateAccessTransformers = true
 
     runs {
@@ -70,28 +69,23 @@ neoForge {
 }
 ```
 
-See the example code in [the test project](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/testproject/build.gradle).
+参见[测试项目](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/testproject/build.gradle)中的示例代码。
 
-## Vanilla-Mode
+## 原版模式(Vanilla-Mode)
 
-In multi-loader projects, you'll often need a subproject for your cross-loader code. This project will also need
-access to Minecraft classes, but without any loader-specific extensions.
+在多加载器项目中，您通常需要一个用于跨加载器代码的子项目。此项目也需要访问 Minecraft 类，但不包含任何加载器特定的扩展。
 
-This plugin solves that by offering a "Vanilla-mode" which you enable by
-specifying a [NeoForm version](https://projects.neoforged.net/neoforged/neoform) instead of a NeoForge version.
-NeoForm contains the necessary configuration to produce Minecraft jar-files that you can compile against
-that contain no other modifications.
+此插件通过提供“原版模式”来解决此问题，您可以通过指定 [NeoForm 版本](https://projects.neoforged.net/neoforged/neoform)而不是 NeoForge 版本来启用它。NeoForm 包含必要的配置，以生成您可以编译的 Minecraft jar 文件，这些文件不包含其他修改。
 
-In Vanilla-mode, only the `client`, `server` and `data` run types are supported.
-Since the plugin includes no mod loader code in this mode, only basic resource- and data packs will be usable in-game.
+在原版模式下，仅支持 `client`、`server` 和 `data` 运行类型。由于插件在此模式下不包含任何模组加载器代码，因此只有基本的资源和数据包才能在游戏中使用。
 
-In `build.gradle`:
+在 `build.gradle` 中：
 
-Apply the plugin as usual and use a configuration block like this:
+像往常一样应用插件，并使用如下配置块：
 
 ```groovy
 neoForge {
-    // Look for versions on https://projects.neoforged.net/neoforged/neoform
+    // 在 https://projects.neoforged.net/neoforged/neoform 上查找版本
     neoFormVersion = "1.21-20240613.152323"
 
     runs {
@@ -108,135 +102,129 @@ neoForge {
 }
 ```
 
-## Disabling Decompilation and Recompilation
-By default, MDG will use the [NeoForm](https://github.com/neoforged/NeoForm) decompilation/recompilation pipeline to produce
-Minecraft sources and a matching compiled game jar. This leads to a great debugging experience, at the cost of longer setup times.
+## 禁用反编译和重新编译(Disabling Decompilation and Recompilation)
+默认情况下，MDG 将使用 [NeoForm](https://github.com/neoforged/NeoForm) 反编译/重新编译管道来生成 Minecraft 源代码和匹配的编译游戏 jar 文件。这带来了出色的调试体验，但代价是更长的设置时间。
 
-As of MDG 2.0.124, an alternative pipeline can be used, which will skip decompilation and recompilation entirely.
-As of MDG 2.0.136, this pipeline will be used by default in CI/CD pipelines, if the `CI` environment variable is `true`.
-This is true by default in many CI/CD systems such as GitHub Actions.
+从 MDG 2.0.124 开始，可以使用替代管道，该管道将完全跳过反编译和重新编译。从 MDG 2.0.136 开始，在 CI/CD 管道中，如果 `CI` 环境变量为 `true`，则将默认使用此管道。在许多 CI/CD 系统（例如 GitHub Actions）中，默认情况下为 true。
 
-To control this setting manually, replace:
+要手动控制此设置，请替换：
 ```groovy
 neoForge {
-    version = "..." // or neoFormVersion = "..."
+    version = "..." // 或 neoFormVersion = "..."
 }
 ```
 
-By:
+为：
 ```groovy
 neoForge {
     enable {
-        version = "..." // or neoFormVersion = "..."
+        version = "..." // 或 neoFormVersion = "..."
         disableRecompilation = true
     }
 }
 ```
 
-## Common Issues
+## 常见问题(Common Issues)
 
-### Clicking "Attach Sources" does nothing when viewing a Minecraft class (IntelliJ IDEA)
-Sometimes IntelliJ gets into a state where clicking "Attach Sources" while viewing a decompiled Minecraft class 
-will not work.
+### 查看 Minecraft 类时点击“附加源代码”无反应（IntelliJ IDEA）(Clicking "Attach Sources" does nothing when viewing a Minecraft class (IntelliJ IDEA))
+有时 IntelliJ 会进入一种状态，即查看反编译的 Minecraft 类时点击“附加源代码”不起作用。
 
-Reloading the Gradle Project and then clicking "Attach Sources" again will usually fix this problem.
+重新加载 Gradle 项目然后再次点击“附加源代码”通常会解决此问题。
 
-### Task `idePostSync` not found (IntelliJ IDEA)
-This error typically happens when switching to ModDevGradle from another plugin with an `idePostSync` task.
-This can be fixed by unregistering the task in IntelliJ IDEA, as follows:
+### 找不到任务 `idePostSync` （IntelliJ IDEA）(Task `idePostSync` not found (IntelliJ IDEA))
+此错误通常在从具有 `idePostSync` 任务的另一个插件切换到 ModDevGradle 时发生。可以通过在 IntelliJ IDEA 中取消注册该任务来修复，如下所示：
 
 <details>
-<summary>Click to expand</summary>
+<summary>点击展开</summary>
 
-1. Open the Gradle tool window on the right, and right-click the Gradle project.
+1. 打开右侧的 Gradle 工具窗口，右键单击 Gradle 项目。
 
 ![](assets/idePostSync1.png)
 
-2. Click on `Tasks Activation`.
+2. 点击 `Tasks Activation`。
 
 ![](assets/idePostSync2.png)
 
-3. Select the `idePostSync` task and delete it using the `-` button.
+3. 选择 `idePostSync` 任务并使用 `-` 按钮删除它。
 
 ![](assets/idePostSync3.png)
 
-4. Sync the Gradle project again.
+4. 再次同步 Gradle 项目。
 
 </details>
 
-## More Configuration
+## 更多配置(More Configuration)
 
-### Runs
+### 运行配置(Runs)
 
-Any number of runs can be added in the `neoForge { runs { ... } }` block.
+可以在 `neoForge { runs { ... } }` 块中添加任意数量的运行配置。
 
-Every run must have a type. Currently, the supported types are `client`, `data`, `gameTestServer`, `server`.
-The run type can be set as follows:
+每个运行必须有一个类型。目前支持的类型有 `client`、`data`、`gameTestServer`、`server`。
+可以按如下方式设置运行类型：
 
 ```groovy
 neoForge {
     runs {
         <run name> {
-            // This is the standard syntax:
+            // 这是标准语法：
             type = "gameTestServer"
-            // Client, data and server runs can use a shorthand instead:
+            // Client、data 和 server 运行可以使用简写：
             // client()
             // data()
             // server()
         
-            // Changes the working directory used for this run.
-            // The default is the 'run' subdirectory of your project
+            // 更改此运行使用的工作目录。
+            // 默认为项目中的 'run' 子目录
             gameDirectory = project.file('runs/client')
 
-            // Add arguments passed to the main method
+            // 添加传递给主方法的参数
             programArguments = ["--arg"]
             programArgument("--arg")
 
-            // Add arguments passed to the JVM
+            // 添加传递给 JVM 的参数
             jvmArguments = ["-XX:+AllowEnhancedClassRedefinition"]
             jvmArgument("-XX:+AllowEnhancedClassRedefinition")
 
-            // Add system properties
+            // 添加系统属性
             systemProperties = [
                     "a.b.c": "xyz"
             ]
             systemProperty("a.b.c", "xyz")
 
-            // Set or add environment variables
+            // 设置或添加环境变量
             environment = [
                     "FOO_BAR": "123"
             ]
             environment("FOO_BAR", "123")
 
-            // Optionally set the log-level used by the game
+            // 可选地设置游戏使用的日志级别
             logLevel = org.slf4j.event.Level.DEBUG
 
-            // You can change the name used for this run in your IDE
-            ideName = "Run Game Tests"
+            // 您可以更改此运行在 IDE 中使用的名称
+            ideName = "运行游戏测试(Run Game Tests)"
             
-            // You can disable a run configuration being generated for your IDE
+            // 您可以禁止为您的 IDE 生成运行配置
             disableIdeRun()
-            // ... alternatively you can set ideName = ""
+            // ... 或者您可以将 ideName = ""
 
-            // Changes the source set whose runtime classpath is used for this run. This defaults to "main"
-            // Eclipse does not support having multiple runtime classpaths per project (except for unit tests).
+            // 更改用于此运行的运行时类路径的源集。默认为 "main"
+            // Eclipse 不支持每个项目有多个运行时类路径（单元测试除外）。
             sourceSet = sourceSets.main
 
-            // Changes which local mods are loaded in this run.
-            // This defaults to all mods declared in this project (inside of mods { ... } ).
+            // 更改在此运行中加载的本地模组。
+            // 默认为此项目中声明的所有模组（在 mods { ... } 内）。
             loadedMods = [mods.<mod name 1>, mods.<mod name 2>]
 
-            // Allows advanced users to run additional Gradle tasks before each launch of this run
-            // Please note that using this feature will significantly slow down launching the game
+            // 允许高级用户在每次启动此运行之前运行额外的 Gradle 任务
+            // 请注意，使用此功能将显著减慢游戏启动速度
             taskBefore tasks.named("generateSomeCodeTask")
         }
     }
 }
 ```
 
-Please have a look at [RunModel.java](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/src/main/java/net/neoforged/moddevgradle/dsl/RunModel.java) for the list of
-supported properties.
-Here is an example that sets a system property to change the log level to debug:
+请查看 [RunModel.java](https://github.com/neoforged/ModDevGradle/blob/8d21169e3dec5268d5f6f105bb4ec2f5f55b7f8c/src/main/java/net/neoforged/moddevgradle/dsl/RunModel.java) 以获取支持的属性列表。
+以下是一个示例，设置系统属性以将日志级别更改为调试：
 
 ```groovy
 neoForge {
@@ -248,50 +236,45 @@ neoForge {
 }
 ```
 
-### Jar-in-Jar
+### Jar-in-Jar(Jar-in-Jar)
 
-To embed external Jar-files into your mod file, you can use the `jarJar` configuration added by the plugin.
+要将外部 Jar 文件嵌入到您的模组文件中，您可以使用插件添加的 `jarJar` 配置。
 
-#### External Dependencies
+#### 外部依赖项(External Dependencies)
 
-When you want to bundle external dependencies, Jar-in-Jar has to be able to select a single copy of that dependency
-when it is bundled by multiple mods (possibly even in different versions). To support this scenario, you should set
-a supported version range to avoid mod incompatibilities.
+当您想要捆绑外部依赖项时，Jar-in-Jar 必须能够在多个模组（可能甚至是不同版本）捆绑该依赖项时选择单个副本。为了支持这种情况，您应该设置一个支持的版本范围以避免模组不兼容。
 
 ```groovy
 dependencies {
     jarJar(implementation("org.commonmark:commonmark")) {
         version {
-            // The version range your mod is actually compatible with. 
-            // Note that you may receive a *lower* version than your preferred if another
-            // Mod is only compatible up to 1.7.24, for example, your mod might get 1.7.24 at runtime.
+            // 您的模组实际兼容的版本范围。
+            // 注意，如果另一个模组仅兼容到 1.7.24，您可能会收到一个比您首选的版本*更低*的版本，例如，在运行时您的模组可能会得到 1.7.24。
             strictly '[0.1, 1.0)'
-            prefer '0.21.0' // The version actually used in your dev workspace
+            prefer '0.21.0' // 在您的开发工作区中实际使用的版本
         }
     }
 }
 ```
 
-Version ranges use
-the [Maven version range format](https://cwiki.apache.org/confluence/display/MAVENOLD/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges):
+版本范围使用 [Maven 版本范围格式](https://cwiki.apache.org/confluence/display/MAVENOLD/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges)：
 
-| Range         | Meaning                                                                       |
-|---------------|-------------------------------------------------------------------------------|
-| (,1.0]        | x \<= 1.0                                                                      |
-| 1.0           | **Soft** requirement on 1.0. It allows for **any** version.                   |
-| [1.0]         | Hard requirement on 1.0                                                       |
-| [1.2,1.3]     | 1.2 \<= x \<= 1.3                                                               |
-| [1.0,2.0)     | 1.0 \<= x \< 2.0                                                                |
-| [1.5,)        | x \>= 1.5                                                                      |
-| (,1.0],[1.2,) | x \<= 1.0 or x \>= 1.2. Multiple sets are comma-separated                       |
-| (,1.1),(1.1,) | This excludes 1.1 if it is known not to work in combination with this library |
+| 范围(Range)         | 含义(Meaning)                                                                       |
+|---------------------|-------------------------------------------------------------------------------------|
+| (,1.0]              | x \<= 1.0                                                                           |
+| 1.0                 | **软**要求 1.0。它允许**任何**版本。                                             |
+| [1.0]               | 硬要求 1.0                                                                          |
+| [1.2,1.3]           | 1.2 \<= x \<= 1.3                                                                   |
+| [1.0,2.0)           | 1.0 \<= x \< 2.0                                                                     |
+| [1.5,)              | x \>= 1.5                                                                           |
+| (,1.0],[1.2,)       | x \<= 1.0 或 x \>= 1.2。多组之间用逗号分隔                                             |
+| (,1.1),(1.1,)       | 如果已知 1.1 与此库结合使用时无法工作，则此范围排除 1.1                              |
 
-#### Local Files
+#### 本地文件(Local Files)
 
-You can also include files built by other tasks in your project, for example, jar tasks of other source sets.
+您还可以将项目中其他任务构建的文件包含在内，例如其他源集的 jar 任务。
 
-When wanting to build a secondary jar for a coremod or plugin, you could define a separate source set `plugin`,
-add a jar task to package it and then include the output of that jar like this:
+当想要为核心模组或插件构建辅助 jar 时，您可以定义一个单独的源集 `plugin`，添加一个 jar 任务来打包它，然后像这样包含该 jar 的输出：
 
 ```groovy
 sourceSets {
@@ -303,7 +286,7 @@ neoForge {
     // ...
     mods {
         // ...
-        // To make the plugin load in dev
+        // 使插件在开发环境中加载
         'plugin' {
             sourceSet sourceSets.plugin
         }
@@ -326,12 +309,11 @@ dependencies {
 }
 ```
 
-When you include a jar file like this, we use its filename as the artifact-id and its MD5 hash as the version. 
-It will never be swapped out with embedded libraries of the same name, unless their content matches.
+当您像这样包含一个 jar 文件时，我们使用其文件名作为构件 ID，使用其 MD5 哈希作为版本。除非其内容匹配，否则它永远不会与相同名称的嵌入库交换。
 
-#### Subprojects
+#### 子项目(Subprojects)
 
-For example, if you have a coremod in a subproject and want to embed its jar file, you can use the following syntax.
+例如，如果您在子项目中有一个核心模组并希望嵌入其 jar 文件，可以使用以下语法。
 
 ```groovy
 dependencies {
@@ -339,47 +321,36 @@ dependencies {
 }
 ```
 
-When starting the game, FML will use the group and artifact id of an embedded Jar-file to determine if the same file
-has been embedded in other mods.
-For subprojects, the group id is the root project name, while the artifact id is the name of the subproject.
-Besides the group and artifact id, the Java module name of an embedded Jar also has to be unique across all loaded
-Jar files.
-To decrease the likelihood of conflicts if no explicit module name is set,
-we prefix the filename of embedded subprojects with the group id.
+启动游戏时，FML 将使用嵌入的 Jar 文件的组和构件 ID 来确定相同的文件是否已嵌入到其他模组中。对于子项目，组 ID 是根项目名称，而构件 ID 是子项目的名称。除了组和构件 ID 之外，嵌入 Jar 的 Java 模块名称在所有已加载的 Jar 文件中也必须是唯一的。为了在没有显式模块名的情况下减少冲突的可能性，我们在嵌入的子项目的文件名前加上组 ID。
 
-### External Dependencies: Runs
-As of Minecraft 1.21.9, external dependencies do not need special handling anymore to be loaded in runs.
+### 外部依赖项：运行(External Dependencies: Runs)
+从 Minecraft 1.21.9 开始，外部依赖项不再需要在运行中特殊处理即可加载。
 
 <details>
-<summary>Show information for 1.21.8 and older Minecraft versions</summary>
+<summary>显示适用于 1.21.8 及更旧 Minecraft 版本的信息</summary>
 
-External dependencies will only be loaded in your runs if they are mods (with a `META-INF/neoforge.mods.toml` file),
-or if they have the `FMLModType` entry set in their `META-INF/MANIFEST.MF` file.
-Usually, Java libraries do not fit either of these requirements,
-leading to a `ClassNotFoundException` at run time when you try to call them from your mod.
+外部依赖项只有在它们是模组（具有 `META-INF/neoforge.mods.toml` 文件）时，或者在其 `META-INF/MANIFEST.MF` 文件中设置了 `FMLModType` 条目时，才会在您的运行中被加载。通常，Java 库不符合这些要求，导致在您尝试从模组调用它们时在运行时发生 `ClassNotFoundException`。
 
-To fix this, the library needs to be added to the `additionalRuntimeClasspath` as follows:
+要解决此问题，需要将库添加到 `additionalRuntimeClasspath`，如下所示：
 ```groovy
 dependencies {
-    // This is still required to add the library in your jar and at compile time.
+    // 这仍然是必需的，以便在您的 jar 和编译时添加库。
     jarJar(implementation("org.commonmark:commonmark")) { /* ... */ }
-    // This adds the library to all the runs.
+    // 这将库添加到所有运行中。
     additionalRuntimeClasspath "org.commonmark:commonmark:0.21.0"
 }
 ```
 
-_Advanced_: The additional runtime classpath can be configured per-run.
-For example, to add a dependency to the `client` run only, it can be added to `clientAdditionalRuntimeClasspath`.
+*高级*：额外的运行时类路径可以按运行进行配置。例如，要仅将依赖项添加到 `client` 运行，可以将其添加到 `clientAdditionalRuntimeClasspath`。
 </details>
 
-### Isolated Source Sets
+### 隔离的源集(Isolated Source Sets)
 
-If you work with source sets that do not extend from `main`, and would like the modding dependencies to be available
-in those source sets, you can use the following api:
+如果您使用不从 `main` 扩展的源集，并且希望在这些源集中可以使用模组依赖项，您可以使用以下 API：
 
 ```
 sourceSets {
-  anotherSourceSet // example
+  anotherSourceSet // 示例
 }
 
 neoForge {
@@ -389,7 +360,7 @@ neoForge {
   mods {
     mymod {
       sourceSet sourceSets.main
-      // Do not forget to add additional source-sets here!
+      // 不要忘记在此处添加额外的源集！
       sourceSet sourceSets.anotherSourceSet
     }
   }
@@ -400,71 +371,69 @@ dependencies {
 }
 ```
 
-### Better Minecraft Parameter Names / Javadoc (Parchment)
+### 更好的 Minecraft 参数名 / Javadoc（Parchment）(Better Minecraft Parameter Names / Javadoc (Parchment))
 
-You can use community-sourced parameter-names and Javadoc for Minecraft source code
-from [ParchmentMC](https://parchmentmc.org/docs/getting-started).
+您可以使用来自 [ParchmentMC](https://parchmentmc.org/docs/getting-started) 的社区提供的 Minecraft 源代码参数名和 Javadoc。
 
-The easiest way is setting the Parchment version in your gradle.properties:
+最简单的方法是在您的 gradle.properties 中设置 Parchment 版本：
 
 ```properties
 neoForge.parchment.minecraftVersion=1.21
 neoForge.parchment.mappingsVersion=2024.06.23
 ```
 
-Alternatively, you can set it in your build.gradle:
+或者，您可以在 build.gradle 中设置它：
 
 ```groovy
 neoForge {
     // [...]
 
     parchment {
-        // Get versions from https://parchmentmc.org/docs/getting-started
-        // Omit the "v"-prefix in mappingsVersion
+        // 从 https://parchmentmc.org/docs/getting-started 获取版本
+        // 在 mappingsVersion 中省略 "v" 前缀
         minecraftVersion = "1.20.6"
         mappingsVersion = "2024.05.01"
     }
 }
 ```
 
-### Unit testing with JUnit
+### 使用 JUnit 进行单元测试(Unit testing with JUnit)
 
-On top of gametests, this plugin supports unit testing mods with JUnit.
+除了游戏测试，此插件还支持使用 JUnit 对模组进行单元测试。
 
-For the minimal setup, add the following code to your build script:
+对于最小设置，请将以下代码添加到您的构建脚本中：
 
 ```groovy
-// Add a test dependency on the test engine JUnit
+// 添加对测试引擎 JUnit 的测试依赖项
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Enable JUnit in Gradle:
+// 在 Gradle 中启用 JUnit：
 test {
     useJUnitPlatform()
 }
 
 neoForge {
     unitTest {
-        // Enable JUnit support in the moddev plugin
+        // 在 moddev 插件中启用 JUnit 支持
         enable()
-        // Configure which mod is being tested.
-        // This allows NeoForge to load the test/ classes and resources as belonging to the mod.
-        testedMod = mods.<mod name > // <mod name> must match the name in the mods { } block.
-        // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
-        // This must contain testedMod, and can include other mods as well.
+        // 配置正在测试的模组。
+        // 这允许 NeoForge 将 test/ 的类和资源加载为属于该模组。
+        testedMod = mods.<mod name > // <mod name> 必须与 mods { } 块中的名称匹配。
+        // 如果默认（所有声明的模组）不合适，请配置测试环境中加载的模组。
+        // 这必须包含 testedMod，并且也可以包含其他模组。
         // loadedMods = [mods.<mod name >, mods.<mod name 2>]
     }
 }
 ```
 
-You can now use the `@Test` annotation for your unit tests inside the `test/` folder,
-and reference Minecraft classes.
+您现在可以在 `test/` 文件夹中使用 `@Test` 注解进行单元测试，并引用 Minecraft 类。
 
-#### Loading a server
+#### 加载服务器(Loading a server)
 
-With the NeoForge test framework, you can run your unit tests in the context of a Minecraft server:
+使用 NeoForge 测试框架，您可以在 Minecraft 服务器的上下文中运行单元测试：
 
 ```groovy
 dependencies {
@@ -472,25 +441,21 @@ dependencies {
 }
 ```
 
-With this dependency, you can annotate your test class as follows:
+通过此依赖项，您可以按如下方式注解您的测试类：
 
 ```java
 @ExtendWith(EphemeralTestServerProvider.class)
 public class TestClass {
     @Test
     public void testMethod(MinecraftServer server) {
-        // Use server...
+        // 使用 server...
     }
 }
 ```
 
-### Centralizing Repositories Declaration
+### 集中化仓库声明(Centralizing Repositories Declaration)
 
-This plugin supports
-Gradle's [centralized repositories declaration](https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:centralized-repository-declaration)
-in settings.gradle
-by offering a separate plugin to apply the repositories to develop mods.
-It can be used in the following way in `settings.gradle`:
+此插件支持 Gradle 的[集中化仓库声明](https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:centralized-repository-declaration)，通过在 settings.gradle 中提供一个单独的插件来应用开发模组所需的仓库。可以在 `settings.gradle` 中按如下方式使用：
 
 ```groovy
 plugins {
@@ -504,47 +469,38 @@ dependencyResolutionManagement {
 }
 ```
 
-Please note that defining any repository in build.gradle will completely disable
-the centrally managed repositories for that project.
-You can also use the repositories plugin in a project to add the repositories there,
-even if dependency management has been overridden.
+请注意，在 build.gradle 中定义任何仓库将完全禁用该项目的集中化管理仓库。您也可以在项目中使用仓库插件来添加仓库，即使依赖管理已被覆盖。
 
-### Access Transformers
+### 访问转换器(Access Transformers)
 
-Access Transformers are an advanced feature allowing mods to relax the access modifiers on Minecraft classes,
- fields, and methods.
+访问转换器(Access Transformers)是一项高级功能，允许模组放宽 Minecraft 类、字段和方法的访问修饰符。
 
-To use this feature, you can place an access transformer data file at `src/main/resources/META-INF/accesstransformer.cfg`,
-adhering to the [access transformer format](https://docs.neoforged.net/docs/advanced/accesstransformers/).
+要使用此功能，您可以在 `src/main/resources/META-INF/accesstransformer.cfg` 处放置一个访问转换器数据文件，并遵守[访问转换器格式](https://docs.neoforged.net/docs/advanced/accesstransformers/)。
 
-**When you use the default file location, you do not need to configure anything.**
+**当您使用默认文件位置时，您不需要配置任何东西。**
 
-If you'd like to use additional or different access transformer files, you can modify the paths MDG reads them from
-by setting the `accessTransformers` property.
+如果您想使用其他或不同的访问转换器文件，可以通过设置 `accessTransformers` 属性来修改 MDG 读取它们的路径。
 
 :::info
-If you do not use the default path, you have to also modify your neoforge.mods.toml and configure the paths.
-Please see the [NeoForge documentation](https://docs.neoforged.net/docs/advanced/accesstransformers/) for details.
+如果您不使用默认路径，您还必须修改您的 neoforge.mods.toml 并配置路径。有关详细信息，请参阅 [NeoForge 文档](https://docs.neoforged.net/docs/advanced/accesstransformers/)。
 :::
 
-The elements are in the same format that `project.files(...)` expects.
+元素的格式与 `project.files(...)` 期望的格式相同。
 
 ```groovy
 neoForge {
-    // Pulling in an access transformer from the parent project
-    // (Option 1) Add a single access transformer, and keep the default:
+    // 从父项目中引入访问转换器
+    // (选项 1) 添加单个访问转换器，并保留默认值：
     accessTransformers.from "../src/main/resources/META-INF/accesstransformer.cfg"
-    // (Option 2) Overwrite the whole list of access transformers, removing the default:
+    // (选项 2) 覆盖整个访问转换器列表，移除默认值：
     accessTransformers = ["../src/main/resources/META-INF/accesstransformer.cfg"]
 }
 ```
 
-In addition, you can add additional access transformers to the `accessTransformers` configuration using normal
-Project dependency syntax in your dependencies block.
+此外，您可以使用依赖项块中的正常项目依赖项语法，将额外的访问转换器添加到 `accessTransformers` 配置中。
 
-#### Publication of Access Transformers
-Optionally, access transformers can be published to a Maven repository so they are usable by other mods.
-To publish an access transformer, add a `publish` declaration as follows:
+#### 访问转换器的发布(Publication of Access Transformers)
+可选地，访问转换器可以发布到 Maven 仓库，以便其他模组可以使用。要发布访问转换器，请添加如下 `publish` 声明：
 ```groovy
 neoForge {
     accessTransformers {
@@ -553,28 +509,23 @@ neoForge {
 }
 ```
 
-If there is a single access transformer, it will be published under the `accesstransformer` classifier.
-If there are multiple, they will be published under the `accesstransformer1`, `accesstransformer2`, etc... classifiers.
+如果只有一个访问转换器，它将在 `accesstransformer` 分类器下发布。如果有多个，它们将在 `accesstransformer1`、`accesstransformer2` 等分类器下发布。
 
-To consume an access transformer, add it as an `accessTransformers` dependency.
-This will find all the published access transformers regardless of their file names.
-For example:
+要使用访问转换器，请将其添加为 `accessTransformers` 依赖项。这将找到所有已发布的访问转换器，无论其文件名如何。例如：
 ```groovy
 dependencies {
     accessTransformers "<group>:<artifact>:<version>"
 }
 ```
 
-### Interface Injection
+### 接口注入(Interface Injection)
 
-Interface injection is an advanced feature allowing mods to add additional interfaces to Minecraft classes and interfaces
-at development time. This feature requires that mods use ASM or Mixins to make the same extensions at runtime.
+接口注入(Interface Injection)是一项高级功能，允许模组在开发时向 Minecraft 类和接口添加额外的接口。此功能要求模组在运行时使用 ASM 或 Mixins 进行相同的扩展。
 
-To use this feature, place an [interface injection data-file](https://github.com/neoforged/JavaSourceTransformer?tab=readme-ov-file#interface-injection) in your project and configure the `interfaceInjectionData` property to include it.
-Since this feature only applies at development time, you do not need to include this data file in your jar.
+要使用此功能，请在您的项目中放置一个[接口注入数据文件](https://github.com/neoforged/JavaSourceTransformer?tab=readme-ov-file#interface-injection)，并配置 `interfaceInjectionData` 属性以包含它。由于此功能仅在开发时应用，因此您不需要将此数据文件包含在您的 jar 中。
 
 :::info
-This feature only applies at development time. You need to use Mixins or Coremods to make it work at runtime.
+此功能仅在开发时应用。您需要在运行时使用 Mixins 或 Coremods 来使其工作。
 :::
 
 `build.gradle`
@@ -593,37 +544,33 @@ neoForge {
 }
 ```
 
-In addition, you can add additional data-files to the `interfaceInjectionData` configuration using normal
-Project dependency syntax in your dependencies block.
+此外，您可以使用依赖项块中的正常项目依赖项语法，将额外的数据文件添加到 `interfaceInjectionData` 配置中。
 
-#### Publication of Interface Injection Data
-The publication of interface injection data follows the same principles as the publication of access transformers.
+#### 接口注入数据的发布(Publication of Interface Injection Data)
+接口注入数据的发布遵循与访问转换器发布相同的原则。
 
-If there is a data file, it will be published under the `interfaceinjection` classifier.
-If there are multiple, they will be published under the `interfaceinjection1`, `interfaceinjection2`, etc... classifiers.
+如果有一个数据文件，它将在 `interfaceinjection` 分类器下发布。如果有多个，它们将在 `interfaceinjection1`、`interfaceinjection2` 等分类器下发布。
 
 ```groovy
-// Publish a file:
+// 发布一个文件：
 neoForge {
     interfaceInjectionData {
         publish file("interfaces.json")
     }
 }
-// Consume it:
+// 使用它：
 dependencies {
     interfaceInjectionData "<group>:<artifact>:<version>"
 }
 ```
 
-### Using Authenticated Minecraft Accounts
-Minecraft runs normally use an offline user profile in a development environment.  
-If you want to run the game with your real user profile, you may do so using [DevLogin](https://github.com/covers1624/DevLogin) by setting
-the `devLogin` property of a client run to `true`:
+### 使用经过身份验证的 Minecraft 账户(Using Authenticated Minecraft Accounts)
+Minecraft 运行通常在开发环境中使用离线用户配置文件。如果您想使用真实的用户配置文件运行游戏，您可以通过将客户端运行的 `devLogin` 属性设置为 `true` 来使用 [DevLogin](https://github.com/covers1624/DevLogin)：
 
 ```groovy
 neoForge {
     runs {
-        // Add a second client run that is authenticated
+        // 添加一个经过身份验证的第二个客户端运行
         clientAuth {
             client()
             devLogin = true
@@ -632,15 +579,13 @@ neoForge {
 }
 ```
 
-The first time you launch the authenticated run you will be asked in the console to visit https://www.microsoft.com/link and enter
-the given code. More information is available on the [DevLogin readme](https://github.com/covers1624/DevLogin)
+第一次启动经过身份验证的运行时，控制台会要求您访问 https://www.microsoft.com/link 并输入给定的代码。更多信息可在 [DevLogin 自述文件](https://github.com/covers1624/DevLogin)中找到。
 
-## Advanced Tips & Tricks
+## 高级技巧与窍门(Advanced Tips & Tricks)
 
-### Overriding Platform Libraries
+### 覆盖平台库(Overriding Platform Libraries)
 
-For testing during the development of NeoForge and its various platform libraries, it can be useful to globally
-override the version to an unreleased one. This works:
+在开发 NeoForge 及其各种平台库期间进行测试时，全局覆盖版本到一个未发布的版本可能很有用。这样做是有效的：
 
 ```groovy
 configurations.all {
@@ -650,56 +595,55 @@ configurations.all {
 }
 ```
 
-### Requesting Additional Minecraft Artifacts
+### 请求额外的 Minecraft 构件(Requesting Additional Minecraft Artifacts)
 
-The NeoForm process executed to create the Minecraft jars contains additional intermediate results, which may be useful in advanced build scripts.
+执行以创建 Minecraft jar 的 NeoForm 过程包含额外的中间结果，这些结果可能在高级构建脚本中有用。
 
-You can request those results to be written to specific output files by using the `additionalMinecraftArtifacts` property.
+您可以通过使用 `additionalMinecraftArtifacts` 属性请求将这些结果写入特定的输出文件。
 
-Which results are available depends on the NeoForm/NeoForge and NFRT versions used. (See below to pin the NFRT version.)
+哪些结果可用取决于使用的 NeoForm/NeoForge 和 NFRT 版本。（请参见下文以固定 NFRT 版本。）
 
 ```groovy
 neoForge {
-    // Request NFRT to write additional results to the given locations
-    // This happens alongside the creation of the normal Minecraft jar
+    // 请求 NFRT 将额外结果写入给定位置
+    // 这与正常 Minecraft jar 的创建同时进行
     additionalMinecraftArtifacts.put('vanillaDeobfuscated', project.file('vanilla.jar'))
 }
 ```
 
-### Global Settings for NFRT
+### NFRT 的全局设置(Global Settings for NFRT)
 
 ```groovy
 neoFormRuntime {
-    // Use a specific NFRT version
-    // Gradle Property: neoForge.neoFormRuntime.version
+    // 使用特定的 NFRT 版本
+    // Gradle 属性：neoForge.neoFormRuntime.version
     version = "1.2.3"
 
-    // Control use of cache
-    // Gradle Property: neoForge.neoFormRuntime.enableCache
+    // 控制缓存的使用
+    // Gradle 属性：neoForge.neoFormRuntime.enableCache
     enableCache = false
 
-    // Enable Verbose Output
-    // Gradle Property: neoForge.neoFormRuntime.verbose
+    // 启用详细输出
+    // Gradle 属性：neoForge.neoFormRuntime.verbose
     verbose = true
 
-    // Use Eclipse Compiler for Minecraft
-    // Gradle Property: neoForge.neoFormRuntime.useEclipseCompiler
+    // 为 Minecraft 使用 Eclipse 编译器
+    // Gradle 属性：neoForge.neoFormRuntime.useEclipseCompiler
     useEclipseCompiler = true
 
-    // Print more information when NFRT cannot use a cached result
-    // Gradle Property: neoForge.neoFormRuntime.analyzeCacheMisses
+    // 当 NFRT 无法使用缓存结果时打印更多信息
+    // Gradle 属性：neoForge.neoFormRuntime.analyzeCacheMisses
     analyzeCacheMisses = true
     
-    // Overrides the launcher manifest URL used by NFRT to look up Minecraft versions
-    // Gradle Property: neoForge.neoFormRuntime.launcherManifestUrl
+    // 覆盖 NFRT 用于查找 Minecraft 版本的启动器清单 URL
+    // Gradle 属性：neoForge.neoFormRuntime.launcherManifestUrl
     launcherManifestUrl = "https://.../version_manifest_v2.json"
 }
 ```
 
-### Running Tasks on IDE Project Synchronization
+### 在 IDE 项目同步时运行任务(Running Tasks on IDE Project Synchronization)
 
-You can add tasks to be run when the IDE reloads your Gradle project. 
-Advanced users might find this useful to run code generation tasks whenever the IDE syncs the project.
+您可以添加任务在 IDE 重新加载您的 Gradle 项目时运行。高级用户可能会发现这对于在 IDE 同步项目时运行代码生成任务很有用。
 
 ```
 neoForge {

@@ -4,33 +4,32 @@ sidebar_position: 1
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Non-Minecraft Dependencies
+# 非 Minecraft 依赖项(Non-Minecraft Dependencies)
 
-Non-Minecraft dependencies are artifacts that are neither a mod nor a dependency Minecraft or NeoForge itself relies on. By default, NeoForge does not load non-Minecraft dependencies when loading a mod. For development environments, they must be added as a runtime dependencies, while production environments should make use of the [jar-in-jar system][jij].
+非 Minecraft 依赖项是指既不是模组，也不是 Minecraft 或 NeoForge 本身所依赖的依赖项的构件。默认情况下，NeoForge 在加载模组时不会加载非 Minecraft 依赖项。对于开发环境，必须将它们作为运行时依赖项添加，而生产环境则应使用 [jar-in-jar 系统][jij]。
 
-## 1.21.9 and Above
+## 1.21.9 及以上版本
 
-Running NeoForge on 1.21.9 and above will load anything available on the classpath in development, including non-minecraft dependencies. This means adding the library is as simple as adding any other gradle dependency:
+在 1.21.9 及以上版本上运行 NeoForge 时，将加载开发环境中类路径上可用的任何内容，包括非 Minecraft 依赖项。这意味着添加库就像添加任何其他 Gradle 依赖项一样简单：
 
 ```gradle
-// This adds the library at compile and runtime
-// In practice, this should be wrapped with 'jarJar'
-// to include the library in your jar
+// 这会在编译时和运行时添加该库
+// 在实践中，这应该用 'jarJar' 包装，以便将库包含在您的 jar 中
 implementation 'com.example:example:1.0'
 ```
 
-## 1.21.8 and Below
+## 1.21.8 及以下版本
 
-Running NeoForge on 1.21.8 and below additionally require the library to be added to the runtime classpath:
+在 1.21.8 及以下版本上运行 NeoForge 时，还需要将库添加到运行时类路径：
 
 <Tabs defaultValue="mdg">
 <TabItem value="mdg" label="ModDevGradle">
 
 ```gradle
 dependencies {
-    // This is required to add the library at compile time
+    // 这是为了在编译时添加该库
     implementation 'com.example:example:1.0'
-    // This adds the library to all the runs
+    // 这会将库添加到所有运行配置中
     additionalRuntimeClasspath 'com.example:example:1.0'
 }
 ```
@@ -53,13 +52,13 @@ runs {
 }
 ```
 
-Or, you can use a configuration:
+或者，您可以使用一个配置(configuration)：
 
 ```gradle
 configurations {
     libraries
-    // This will make sure that all dependencies that you add to the libraries configuration will also be added to the implementation configuration
-    // This way, you only need one dependency declaration for both runtime and compile dependencies
+    // 这将确保您添加到 libraries 配置的所有依赖项也会添加到 implementation 配置
+    // 这样，您只需一次依赖声明即可同时用于运行时和编译时依赖项
     implementation.extendsFrom libraries
 }
 

@@ -1,39 +1,39 @@
 {
   "version.label": {
     "message": "1.21.9 - 1.21.10",
-    "description": "当前版本的标签"
+    "description": "The label for version current"
   },
   "sidebar.mainSidebar.category.Getting Started": {
     "message": "开始使用",
-    "description": "侧边栏主分类中“开始使用”的标签"
+    "description": "The label for category 'Getting Started' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Concepts": {
     "message": "概念",
-    "description": "侧边栏主分类中“概念”的标签"
+    "description": "The label for category 'Concepts' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Blocks": {
     "message": "方块",
-    "description": "侧边栏主分类中“方块”的标签"
+    "description": "The label for category 'Blocks' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Items": {
     "message": "物品",
-    "description": "侧边栏主分类中“物品”的标签"
+    "description": "The label for category 'Items' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Entities": {
     "message": "实体",
-    "description": "侧边栏主分类中“实体”的标签"
+    "description": "The label for category 'Entities' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Block Entities": {
     "message": "方块实体",
-    "description": "侧边栏主分类中“方块实体”的标签"
+    "description": "The label for category 'Block Entities' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Resources": {
     "message": "资源",
-    "description": "侧边栏主分类中“资源”的标签"
+    "description": "The label for category 'Resources' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Client": {
     "message": "客户端",
-    "description": "侧边栏主分类中“客户端”的标签"
+    "description": "The label for category 'Client' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Models": {
     "message": "模型",
@@ -41,7 +41,7 @@
   },
   "sidebar.mainSidebar.category.Server": {
     "message": "服务端",
-    "description": "侧边栏主分类中“服务端”的标签"
+    "description": "The label for category 'Server' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Data Maps": {
     "message": "数据映射",
@@ -61,30 +61,50 @@
   },
   "sidebar.mainSidebar.category.Inventories & Transfers": {
     "message": "物品栏与传输",
-    "description": "侧边栏主分类中“物品栏与传输”的标签"
+    "description": "The label for category 'Inventories & Transfers' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Data Storage": {
     "message": "数据存储",
-    "description": "侧边栏主分类中“数据存储”的标签"
+    "description": "The label for category 'Data Storage' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Worldgen": {
     "message": "世界生成",
-    "description": "侧边栏主分类中“世界生成”的标签"
+    "description": "The label for category 'Worldgen' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Networking": {
     "message": "网络",
-    "description": "侧边栏主分类中“网络”的标签"
+    "description": "The label for category 'Networking' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Rendering": {
     "message": "渲染",
-    "description": "侧边栏主分类中“渲染”的标签"
+    "description": "The label for category 'Rendering' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Advanced Topics": {
     "message": "高级主题",
-    "description": "侧边栏主分类中“高级主题”的标签"
+    "description": "The label for category 'Advanced Topics' in sidebar 'mainSidebar'"
   },
   "sidebar.mainSidebar.category.Miscellaneous": {
     "message": "杂项",
-    "description": "侧边栏主分类中“杂项”的标签"
+    "description": "The label for category 'Miscellaneous' in sidebar 'mainSidebar'"
+  },
+  "sidebar.mainSidebar.category.模型(Models)": {
+    "message": "模型(Models)",
+    "description": "The label for category '模型(Models)' in sidebar 'mainSidebar'"
+  },
+  "sidebar.mainSidebar.category.数据地图": {
+    "message": "数据地图",
+    "description": "The label for category '数据地图' in sidebar 'mainSidebar'"
+  },
+  "sidebar.mainSidebar.category.附魔": {
+    "message": "附魔",
+    "description": "The label for category '附魔' in sidebar 'mainSidebar'"
+  },
+  "sidebar.mainSidebar.category.战利品表": {
+    "message": "战利品表",
+    "description": "The label for category '战利品表' in sidebar 'mainSidebar'"
+  },
+  "sidebar.mainSidebar.category.配方": {
+    "message": "配方",
+    "description": "The label for category '配方' in sidebar 'mainSidebar'"
   }
 }

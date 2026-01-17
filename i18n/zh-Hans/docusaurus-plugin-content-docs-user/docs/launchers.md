@@ -2,64 +2,64 @@
 sidebar_position: 3
 ---
 
-# Third-Party Launchers
+# 第三方启动器
 
-Due to the size and popularity of the modded Minecraft community, several third-party launchers for NeoForge (and other mod loaders) have established themselves in the community. Each of them comes with a slightly different set of features, and in many regards, the choice of launcher comes down to personal preference (there is no "best" launcher). This article aims to give an overview over the most popular choices, in alphabetical order.
+由于模组 Minecraft(我的世界) 社区的规模和受欢迎程度，一些针对 NeoForge(原名称)（和其他模组加载器）的第三方启动器已在社区中确立了自己的地位。每个启动器都带有略微不同的功能集，在许多方面，启动器的选择取决于个人偏好（没有“最好”的启动器）。本文旨在按字母顺序概述最受欢迎的选择。
 
-One big denominator all of these launchers share is their ability to distribute modpacks. A modpack is a pre-configured set of mods and configuration files that are made to be played together. Different launchers use different formats for distributing modpacks, the interoperability of which varies greatly.
+所有这些启动器的一个共同点是它们分发整合包的能力。整合包是一组预配置的模组和配置文件，旨在一起游玩。不同的启动器使用不同的格式分发整合包，这些格式的互操作性差异很大。
 
 :::info
-**Disclaimer:** None of these launchers are affiliated with NeoForge in any way.
+**免责声明：** 这些启动器均与 NeoForge(原名称) 无任何关联。
 :::
 
-## ATLauncher
+## ATLauncher(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://atlauncher.com/downloads](https://atlauncher.com/downloads)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://atlauncher.com/downloads](https://atlauncher.com/downloads)
 
-One of the oldest launchers. Has some exclusive modpacks, and allows installing mods and modpacks from other sources such as CurseForge, FTB, Modrinth and Technic. Also allows creating servers from inside the app. This launcher is free open-source software.
+最古老的启动器之一。拥有一些独家整合包，并允许安装来自其他来源的模组和整合包，例如 CurseForge(原名称), FTB(原名称), Modrinth(原名称) 和 Technic(原名称)。还允许从应用程序内创建服务器。此启动器是免费开源软件。
 
-## CurseForge App
+## CurseForge 应用程序(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://www.curseforge.com/download/app](https://www.curseforge.com/download/app)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://www.curseforge.com/download/app](https://www.curseforge.com/download/app)
 
-A launcher made by the same people that maintain the [CurseForge][curseforge] website, featuring a similar design to the website. A previous iteration of this launcher was integrated in the now-defunct Twitch app. Also allows to download some CurseForge mods that have been set to disallow third-party programs, i.e., that require more hassle to install in other launchers.
+由维护 [CurseForge(原名称)][curseforge] 网站的同批人员制作的启动器，设计风格与网站相似。该启动器的前一个版本集成在现已停用的 Twitch 应用程序中。还可以下载一些已设置为禁止第三方程序的 CurseForge(原名称) 模组，即在其他启动器中安装起来更麻烦的模组。
 
-## FTB App
+## FTB 应用程序(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://www.feed-the-beast.com/ftb-app](https://www.feed-the-beast.com/ftb-app)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://www.feed-the-beast.com/ftb-app](https://www.feed-the-beast.com/ftb-app)
 
-A launcher made by the same people that create the FTB series of modpacks. Has some exclusive modpacks, and also allows installing mods and modpacks from CurseForge.
+由创建 FTB(原名称) 系列整合包的同批人员制作的启动器。拥有一些独家整合包，并且也允许从 CurseForge(原名称) 安装模组和整合包。
 
-## GDLauncher
+## GDLauncher(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://gdlauncher.com](https://gdlauncher.com)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://gdlauncher.com](https://gdlauncher.com)
 
-A launcher that can not only import from, but also export to the modpack formats for CurseForge, FTB, Modrinth, Technic and others. Also allows creating servers from inside the app. This launcher is free open-source software.
+一款不仅可以导入，还可以导出为 CurseForge(原名称), FTB(原名称), Modrinth(原名称), Technic(原名称) 和其他格式的整合包的启动器。还允许从应用程序内创建服务器。此启动器是免费开源软件。
 
-## Modrinth App
+## Modrinth 应用程序(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://modrinth.com/app](https://modrinth.com/app)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://modrinth.com/app](https://modrinth.com/app)
 
-A launcher made by the same people that maintain the [Modrinth][modrinth] website, featuring a similar design to the website. Allows following projects from within the launcher.
+由维护 [Modrinth(原名称)][modrinth] 网站的同批人员制作的启动器，设计风格与网站相似。允许在启动器内关注项目。
 
-## Prism Launcher
+## Prism Launcher(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://prismlauncher.org/download/](https://prismlauncher.org/download/)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://prismlauncher.org/download/](https://prismlauncher.org/download/)
 
-A fork of PolyMC, which in turn is a fork of the old MultiMC launcher. Allows installing mods from both CurseForge and Modrinth. This launcher is free open-source software.
+PolyMC 的一个分支，而 PolyMC 又是旧 MultiMC 启动器的一个分支。允许从 CurseForge(原名称) 和 Modrinth(原名称) 安装模组。此启动器是免费开源软件。
 
-## Technic Launcher
+## Technic 启动器(原名称)
 
-- **Operating Systems:** Windows, Linux, Mac
-- **Download:** [https://www.technicpack.net/download](https://www.technicpack.net/download)
+- **操作系统：** Windows, Linux, Mac
+- **下载：** [https://www.technicpack.net/download](https://www.technicpack.net/download)
 
-One of the oldest launchers. Has some exclusive modpacks, and has an integrated server hosting service.
+最古老的启动器之一。拥有一些独家整合包，并集成了服务器托管服务。
 
 [curseforge]: https://www.curseforge.com/minecraft/search?class=mc-mods
 [modrinth]: https://modrinth.com/mods

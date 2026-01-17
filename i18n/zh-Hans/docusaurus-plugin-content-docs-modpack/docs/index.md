@@ -2,10 +2,10 @@
 sidebar_position: 0
 ---
 
-# Modpack Development
+# 整合包开发(Modpack Development)
 
-There are a lot of inherent nuances that can affect the game when a collection of mods, or a 'modpack', is installed. This guide is intended to help you through the process of the features and tools available for developing and profiling modpacks provided by vanila, NeoForge, or third-parties.
+当一系列模组，或称“整合包”，被安装时，会有许多固有的细微差别可能影响游戏。本指南旨在帮助您了解由原版、NeoForge或第三方提供的用于开发和剖析整合包的功能与工具。
 
 :::warning
-This documentation is currently a work-in-progress.
+本文档目前正在完善中。
 :::

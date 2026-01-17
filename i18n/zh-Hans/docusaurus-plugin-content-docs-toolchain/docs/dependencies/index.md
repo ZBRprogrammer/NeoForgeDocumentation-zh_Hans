@@ -1,31 +1,31 @@
-# Dependencies
+# 依赖项(Dependencies)
 
-Dependencies are not only used to develop interoperability between mods or add additional libraries to the game, but it also determines what version of Minecraft to develop for. This will provide a quick overview on how to modify the `repositories` and `dependencies` block to add dependencies to your development environment.
+依赖项不仅用于开发模组间的互操作性，或为游戏添加额外的库，它还决定了为哪个版本的 Minecraft 进行开发。本文将简要概述如何修改 `repositories` 和 `dependencies` 代码块，以便向您的开发环境添加依赖项。
 
 :::note
 
-This will not explain Gradle concepts in depth. It is highly recommended to read the [Gradle Dependency Management guide][guide] before continuing.
+本文不会深入解释 Gradle 概念。强烈建议在继续之前阅读 [Gradle 依赖管理指南][guide]。
 
 :::
 
-## Mod Dependencies
+## 模组依赖项(Mod Dependencies)
 
-All mod dependencies are added the same way as any other artifacts.
+所有模组依赖项的添加方式与其他构件相同。
 
 ```gradle
 dependencies {
-    // Assume we have some artifact 'examplemod' that can be obtained from a specified repository
+    // 假设我们有一个名为 'examplemod' 的构件，可以从指定仓库获取
     implementation 'com.example:examplemod:1.0'
 }
 ```
 
-### Local Mod Dependencies
+### 本地模组依赖项(Local Mod Dependencies)
 
-If the mod you are trying to depend on is not available on a maven repository (e.g., [Maven Central][central], [CurseMaven], [Modrinth]), you can add a mod dependency using a [flat directory][flat] instead:
+如果您尝试依赖的模组在 Maven 仓库（例如 [Maven Central][central]、[CurseMaven]、[Modrinth]）中不可用，您可以使用[平面目录][flat]来添加模组依赖项：
 
 ```gradle
 repositories {
-    // Adds the 'libs' folder in the project directory as a flat directory
+    // 将项目目录中的 'libs' 文件夹添加为平面目录
     flatDir {
         dir 'libs'
     }
@@ -34,16 +34,16 @@ repositories {
 dependencies {
     // ...
 
-    // Given some <group>:<name>:<version>:<classifier (default None)>
-    //   with an extension <ext (default jar)>
-    // Artifacts in flat directories will be resolved in the following order:
+    // 给定 <group>:<name>:<version>:<classifier (默认无)>
+    //   以及扩展名 <ext (默认 jar)>
+    // 平面目录中的构件将按以下顺序解析：
     // - <name>-<version>.<ext>
     // - <name>-<version>-<classifier>.<ext>
     // - <name>.<ext>
     // - <name>-<classifier>.<ext>
 
-    // If a classifier is explicitly specified
-    //  artifacts with the classifier will take priority:
+    // 如果显式指定了分类器(classifier)
+    //  则具有该分类器的构件将优先：
     // - examplemod-1.0-api.jar
     // - examplemod-api.jar
     // - examplemod-1.0.jar
@@ -53,7 +53,7 @@ dependencies {
 ```
 
 :::note
-The group name can be anything but must not be empty for flat directory entries as they are not checked when resolving the artifact file.
+对于平面目录条目，组名可以是任意非空字符串，因为在解析构件文件时不会检查组名。
 :::
 
 [guide]: https://docs.gradle.org/8.14.3/userguide/dependency_management.html
